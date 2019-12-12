@@ -3,4 +3,4 @@ project(flightSimulator)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(flightSimulator main.cpp)
+add_executable(flightSimulator main.cpp Lexer.cpp)
