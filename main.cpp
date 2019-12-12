@@ -3,6 +3,7 @@
 #include "Lexer.h"
 using namespace std;
 int main() {
+    cout << "You are awesome"!
     Lexer lexer;
     ifstream filePointer;
     filePointer.open("/home/giladasher/CLionProjects/flightSimulator/fly.txt",std::ifstream::in);
