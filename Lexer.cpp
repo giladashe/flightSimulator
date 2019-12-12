@@ -101,7 +101,7 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                 } else if (isOperator(line[i])) {
                     token = string(1, line[i]);
 
-                    //all possible operators that needs to be together: -> , <- , <= , >=
+                    //all possible operators that need to be together: -> , <- , <= , >=
                     if ((line[i] == '-' && line[i + 1] == '>') ||
                         (line[i] == '<' && (line[i + 1] == '-' || line[i + 1] == '='))
                         || (line[i] == '>' && line[i + 1] == '=')) {
