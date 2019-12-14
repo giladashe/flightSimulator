@@ -4,7 +4,7 @@
 
 #include "Command.h"
 
-PrintCommand::PrintCommand(string str) : str(str) {}
+PrintCommand::PrintCommand(const string &str) : str(str) {}
 int PrintCommand::execute() {}
 
 

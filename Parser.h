@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include "Command.cpp"
+#include "Command.h"
 
 class Parser {
     unordered_map<string,Command> map;

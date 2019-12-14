@@ -6,7 +6,7 @@
 #define FLIGHTSIMULATOR_COMMAND_H
 
 #include <string>
-#include "ex1.cpp"
+#include "ex1.h"
 
 using namespace std;
 
@@ -20,7 +20,7 @@ public:
 class PrintCommand : public Command{
     string str;
 public:
-    PrintCommand(string str);
+    PrintCommand(const string &str);
     int execute();
 
 };

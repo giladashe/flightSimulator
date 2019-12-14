@@ -2,8 +2,8 @@
 #include <fstream>
 #include <unordered_map>
 #include "Lexer.h"
-#include "VarData.cpp"
-#include "Command.cpp"
+#include "VarData.h"
+#include "Command.h"
 
 using namespace std;
 int main(){
@@ -14,6 +14,9 @@ int main(){
 
     unordered_map<string, VarData> clientMap;
     unordered_map<string, VarData> simMap; //TODO think where to put
+    string s = " ";
+    Command* printCommand = new PrintCommand(s);
+    Command* openDataServer = new OpenDataServerCommand();
 
     return 0;
 }
