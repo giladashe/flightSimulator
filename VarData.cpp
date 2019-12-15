@@ -5,7 +5,7 @@
 #include "VarData.h"
 
 VarData::VarData(double value, const string &progStr, const string &simStr, int bind) :
-value(value), progStr(progStr),simStr(simStr), bind(bind) {}
+_value(value), _progStr(progStr), _simStr(simStr), _bind(bind) {}
 
 VarData::~VarData() {
 }

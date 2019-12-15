@@ -15,13 +15,14 @@ class Command {
 public:
     //virtual int execute() = 0;
     virtual ~Command() {}
+    int execute(int index, vector<string>& lexer);
 };
 
 class PrintCommand : public Command{
     string str;
 public:
     PrintCommand(const string &str);
-    int execute();
+    int execute(int index, vector<string>& lexer);
 
 };
 
@@ -29,21 +30,21 @@ class SleepCommand : public Command{
     string str;
 public:
     SleepCommand(const string &str);
-
-    SleepCommand();
-
-    int execute();
+    int execute(int index, vector<string>& lexer);
 };
 
 class OpenDataServerCommand : public Command{
+    string _port;
 public:
-    OpenDataServerCommand();
-    int execute();
+    OpenDataServerCommand(const string &port);
+    int execute(int index, vector<string>& lexer);
 };
 class ConnectClientCommand : public Command{
+    string _ip;
+    string _port;
 public:
-    ConnectClientCommand();
-    int execute();
+    ConnectClientCommand(const string &ip, const string &port);
+    int execute(int index, vector<string>& lexer);
 };
 
 class DefineVarCommand : public Command{
@@ -51,10 +52,7 @@ class DefineVarCommand : public Command{
     string value;
 public:
     DefineVarCommand(const string &var, const string &value);
-
-    DefineVarCommand();
-
-    int execute();
+    int execute(int index, vector<string>& lexer);
 };
 
 
@@ -65,36 +63,25 @@ protected:
     list<Command> commandList;
 public:
     ConditionParserCommand(const string &leftStr, const string &rightStr);
-
-    ConditionParserCommand();
-
-    int execute();
+    int execute(int index, vector<string>& lexer);
     const list<Command> &getCommandList() const;
 };
 class IfCommand : public ConditionParserCommand{
 public:
     IfCommand(const string &leftStr, const string &rightStr);
-    int execute();
-
-    IfCommand();
+    int execute(int index, vector<string>& lexer);
 };
 class LoopCommand : public ConditionParserCommand{
 public:
     LoopCommand(const string &leftStr, const string &rightStr);
-    int execute();
-
-    LoopCommand();
+    int execute(int index, vector<string>& lexer);
 };
 class FuncCommand : public Command{
-    string leftStr;
-    string rightStr;
+    string var;
     list<Command> commandList;
 public:
-    FuncCommand(const string &leftStr, const string &rightStr);
-
-    FuncCommand();
-
-    int execute();
+    FuncCommand(const string &variable);
+    int execute(int index, vector<string>& lexer);
     const list<Command> &getCommandList() const;
 };
 

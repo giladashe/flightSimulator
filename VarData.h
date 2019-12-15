@@ -11,9 +11,9 @@ using namespace std;
 
 
 class VarData {
-    double value;
-    string progStr, simStr;
-    int bind; // 1 if I influence, 0 else
+    double _value;
+    string _progStr, _simStr;
+    int _bind; // 1 if I influence, 0 else
 public:
     VarData(double value, const string &progStr, const string &simStr, int bind);
     virtual ~VarData();
