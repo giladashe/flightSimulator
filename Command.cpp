@@ -43,17 +43,23 @@ int ConnectClientCommand::execute(int index, vector<string>& lexer) {
 }
 
 IfCommand::IfCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
-int IfCommand::execute(int index, vector<string>& lexer) {
-    if (this->checkCondition(index, lexer)){
 
+int IfCommand::execute(int index, vector<string>& lexer) {
+    //count steps to return in a loop
+    if (this->checkCondition(index, lexer)){
+    //for each commands
     }
+    // return countsteps;
+
 }
 
 LoopCommand::LoopCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
 int LoopCommand::execute(int index, vector<string>& lexer) {
+    //count steps to return in a loop
     while (this->checkCondition(index, lexer)){
-
+        //for each commands
     }
+   // return countsteps;
 }
 
 ConditionParserCommand::ConditionParserCommand(const string &leftStr, const string &rightStr) : leftStr(leftStr)
@@ -79,7 +85,7 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
     double rightStrVal = Variables::getInstance()->calculate(this->rightStr);
     Expression* left = new Value(leftStrVal);
     Expression* right = new Value(rightStrVal);
-    Expression* e = new ConditionParser(left, right, op);
+    Expression* e = new Condition(left, right, op);
 
     return (e->calculate());
 }

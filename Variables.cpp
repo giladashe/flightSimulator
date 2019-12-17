@@ -19,7 +19,6 @@ Variables* Variables::getInstance()
     {
         instance = new Variables();
     }
-
     return instance;
 }
 
@@ -32,7 +31,7 @@ Variables::Variables(){
     Command* sleepCommand = new SleepCommand("");
     Command* ifCommand = new IfCommand("","");
     Command* loopCommand = new LoopCommand("","");
-    Command* assinmentCommand = new AssignmentCommand("");
+    Command* assignmentCommand = new AssignmentCommand("");
     this->commandMap["openDataServer"] = openDataServer;
     this->commandMap["connectControlClient"] = connectClientCommand;
     this->commandMap["var"] = defineVar;
@@ -40,7 +39,7 @@ Variables::Variables(){
     this->commandMap["Sleep"] = sleepCommand;
     this->commandMap["if"] = ifCommand;
     this->commandMap["while"] = loopCommand;
-    this->commandMap["assign"] = assinmentCommand;
+    this->commandMap["assign"] = assignmentCommand;
 }
 
 int Variables::calculate(string s){

@@ -33,6 +33,7 @@ public:
     int calculate (string s);
 };
 
+//TODO nullptr
 Variables* Variables::instance = 0;
 
 

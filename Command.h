@@ -55,7 +55,7 @@ public:
     int execute(int index, vector<string>& lexer);
 };
 
-// different from ConditionParser (extends BinaryOperator)
+// different from Condition (extends BinaryOperator)
 class ConditionParserCommand : public Command{
 protected:
     string leftStr;

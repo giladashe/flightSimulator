@@ -55,11 +55,11 @@ public:
     double calculate();
 };
 
-// ConditionParser
-class ConditionParser : public BinaryOperator {
+// Condition
+class Condition : public BinaryOperator {
     string _op;
 public:
-    ConditionParser (Expression* l, Expression* r, string op);
+    Condition (Expression* l, Expression* r, string op);
     double calculate();
 };
 
