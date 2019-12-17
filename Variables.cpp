@@ -67,6 +67,8 @@ void Variables::updateVariables(int index, vector<string> &lexer) {
         i++;
     }
 }
+Variables* Variables::instance = 0;
+
 
 
 

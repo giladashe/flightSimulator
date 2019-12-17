@@ -34,7 +34,6 @@ public:
 };
 
 //TODO nullptr
-Variables* Variables::instance = 0;
 
 
 

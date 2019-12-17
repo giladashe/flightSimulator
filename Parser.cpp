@@ -22,8 +22,10 @@ void Parser::parse() {
             index += command->execute(index, this->lexer);
         }
         // assignmentCommand
-        Command* assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
-        index += assignmentCommand->execute(index, this->lexer);
+        else{
+            Command* assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
+            index += assignmentCommand->execute(index, this->lexer);
+        }
     }
 }
 

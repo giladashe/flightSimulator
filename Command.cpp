@@ -43,25 +43,37 @@ int ConnectClientCommand::execute(int index, vector<string>& lexer) {
 }
 
 IfCommand::IfCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
-
 int IfCommand::execute(int index, vector<string>& lexer) {
-    //count steps to return in a loop
+    int i = index;
     if (this->checkCondition(index, lexer)){
-    //for each commands
+        while(lexer[i] != "}"){
+            Command* command = (Variables::getInstance()->getCommandMap().find(lexer[i]))->second;
+            if (command != nullptr){
+                i += command->execute(i, lexer);
+            }
+            // assignmentCommand
+            Command* assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
+            i += assignmentCommand->execute(i, lexer);
+        }
+        return (i +1);
     }
-    // return countsteps;
-
 }
-
 LoopCommand::LoopCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
 int LoopCommand::execute(int index, vector<string>& lexer) {
-    //count steps to return in a loop
+    int i = index;
     while (this->checkCondition(index, lexer)){
-        //for each commands
+        while(lexer[i] != "}"){
+            Command* command = (Variables::getInstance()->getCommandMap().find(lexer[i]))->second;
+            if (command != nullptr){
+                i += command->execute(i, lexer);
+            }
+            // assignmentCommand
+            Command* assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
+            i += assignmentCommand->execute(i, lexer);
+        }
+        return (i +1);
     }
-   // return countsteps;
 }
-
 ConditionParserCommand::ConditionParserCommand(const string &leftStr, const string &rightStr) : leftStr(leftStr)
 ,rightStr(rightStr) {}
 int ConditionParserCommand::execute(int index, vector<string>& lexer) {}
