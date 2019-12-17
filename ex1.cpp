@@ -61,6 +61,31 @@ double Div::calculate() {
         return left->calculate() / right->calculate();
 }
 
+// ConditionParser
+ConditionParser::ConditionParser(Expression *l, Expression *r, string op)
+: BinaryOperator (l, r){
+    this->_op = op;
+}
+double ConditionParser::calculate() {
+    if (this->_op.compare("!=") == 0){
+        return this->left != this->right;
+    }
+    else if (this->_op.compare("==") == 0){
+        return this->left == this->right;
+    }
+    else if (this->_op.compare(">=") == 0){
+        return this->left >= this->right;
+    }
+    else if (this->_op.compare("<=") == 0){
+        return this->left <= this->right;
+    }
+    else if (this->_op.compare(">") == 0){
+        return this->left > this->right;
+    }
+    else if (this->_op.compare("<") == 0){
+        return this->left < this->right;
+    }
+}
 
 
 

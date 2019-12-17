@@ -9,11 +9,9 @@
 #include <vector>
 #include <unordered_map>
 #include "Command.h"
-#include "ProgramObjMap.h"
+#include "VarData.h"
 
 class Parser {
-    unordered_map<string,Command*> map;
-    ProgramObjMap programObjMap;
     vector<string> lexer;
 public:
     Parser(vector<string> lex);

@@ -17,6 +17,9 @@ class VarData {
 public:
     VarData(double value, const string &progStr, const string &simStr, int bind);
     virtual ~VarData();
+    double getValue() const;
+
+    void setValue(double value);
 };
 
 

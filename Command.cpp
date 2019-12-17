@@ -5,8 +5,10 @@
 #include <iostream>
 #include "Command.h"
 #include "VarData.h"
+#include "Variables.h"
 #include <chrono>
 #include <thread>
+#include <regex>
 
 using namespace std;
 
@@ -42,11 +44,17 @@ int ConnectClientCommand::execute(int index, vector<string>& lexer) {
 
 IfCommand::IfCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
 int IfCommand::execute(int index, vector<string>& lexer) {
+    if (this->checkCondition(index, lexer)){
 
+    }
 }
 
 LoopCommand::LoopCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
-int LoopCommand::execute(int index, vector<string>& lexer) {}
+int LoopCommand::execute(int index, vector<string>& lexer) {
+    while (this->checkCondition(index, lexer)){
+
+    }
+}
 
 ConditionParserCommand::ConditionParserCommand(const string &leftStr, const string &rightStr) : leftStr(leftStr)
 ,rightStr(rightStr) {}
@@ -55,6 +63,27 @@ int ConditionParserCommand::execute(int index, vector<string>& lexer) {}
 const list<Command> &ConditionParserCommand::getCommandList() const {
     return this->commandList;
 }
+
+double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
+    Variables::getInstance()->updateVariables(index, lexer);
+    // find the operator
+    int i = index;
+    while((lexer[i].compare("!=") != 0) && (lexer[i].compare("==") != 0)
+          && (lexer[i].compare(">=") != 0) && (lexer[i].compare("<=") != 0)
+          && (lexer[i].compare(">") != 0) && (lexer[i].compare("<") != 0)){
+        i++;
+    }
+    string op = lexer[i];
+
+    double leftStrVal = Variables::getInstance()->calculate(this->leftStr);
+    double rightStrVal = Variables::getInstance()->calculate(this->rightStr);
+    Expression* left = new Value(leftStrVal);
+    Expression* right = new Value(rightStrVal);
+    Expression* e = new ConditionParser(left, right, op);
+
+    return (e->calculate());
+}
+
 
 FuncCommand::FuncCommand(const string &variable) : var(variable) {}
 int FuncCommand::execute(int index, vector<string>& lexer) {}
@@ -78,11 +107,51 @@ int DefineVarCommand::execute(int index, vector<string>& lexer) {
         }
         // create VarData obj and insert to progMap
         VarData* varData = new VarData(-1 , progStr, simStr, bind);
-        //TODO insert to singleton
+        Variables::getInstance()->getProgMap()[progStr] = varData;
+
+        return 6;
     }
 
-
-    return 6;
-    // if assignment check!
+    // assignment
+    else if(lexer[index+2].compare("=") == 0) {
+        string progStr = lexer[index+1];
+        string simStr = "";
+        int bind = -1;
+        // create VarData obj and insert to progMap
+        VarData* varData = new VarData(-1 , progStr, simStr, bind);
+        Variables::getInstance()->getProgMap()[progStr] = varData;
+        Command* assignmentCommand =
+                Variables::getInstance()->getCommandMap().find("assign")->second;
+        int toJump = assignmentCommand->execute(index+1, lexer);
+        return toJump + 1;
+    }
 }
 
+AssignmentCommand::AssignmentCommand(const string &var): _var(var) {
+}
+int AssignmentCommand::execute(int index, vector<string> &lexer) {
+    string strToAssign = lexer[index];
+    int i = index;
+    Variables::getInstance()->updateVariables(index, lexer);
+
+    // string to calculate
+    i = index;
+    string strToCalculate = "";
+    while(lexer[i].compare("\n") != 0){
+        strToCalculate += lexer[i];
+        i++;
+    }
+    double value = Variables::getInstance()->calculate(strToCalculate);
+
+    // assign the value as was calculated
+    (Variables::getInstance()->getProgMap().find(strToAssign)->second)->setValue(value);
+
+    // calculate steps to the next command in "lexer"
+    int toJump = 0;
+    int j = index;
+    while (lexer[j].compare("\n") != 0) {
+        j++;
+        toJump++;
+    }
+    return (toJump+1);
+}

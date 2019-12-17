@@ -15,7 +15,7 @@ class Command {
 public:
     //virtual int execute() = 0;
     virtual ~Command() {}
-    int execute(int index, vector<string>& lexer);
+    virtual int execute(int index, vector<string>& lexer);
 };
 
 class PrintCommand : public Command{
@@ -55,7 +55,7 @@ public:
     int execute(int index, vector<string>& lexer);
 };
 
-
+// different from ConditionParser (extends BinaryOperator)
 class ConditionParserCommand : public Command{
 protected:
     string leftStr;
@@ -65,6 +65,7 @@ public:
     ConditionParserCommand(const string &leftStr, const string &rightStr);
     int execute(int index, vector<string>& lexer);
     const list<Command> &getCommandList() const;
+    double checkCondition (int index, vector<string>& lexer);
 };
 class IfCommand : public ConditionParserCommand{
 public:
@@ -83,6 +84,12 @@ public:
     FuncCommand(const string &variable);
     int execute(int index, vector<string>& lexer);
     const list<Command> &getCommandList() const;
+};
+class AssignmentCommand : public Command{
+    string _var;
+public:
+    AssignmentCommand(const string &var);
+    int execute(int index, vector<string>& lexer);
 };
 
 

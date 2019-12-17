@@ -13,8 +13,6 @@ int main(){
     filePointer.open("/home/shaiyis/CLionProjects/flightSimulator/fly.txt",std::ifstream::in);
     vector<string> arrayOfTokens = lexer.lexer(filePointer);
 
-    unordered_map<string, VarData> simMap; //TODO think where to put
-
     Parser parser(arrayOfTokens);
     parser.parse();
 
