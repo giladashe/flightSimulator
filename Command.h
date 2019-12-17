@@ -91,6 +91,6 @@ public:
     AssignmentCommand(const string &var);
     int execute(int index, vector<string>& lexer);
 };
-
+//
 
 #endif //FLIGHTSIMULATOR_COMMAND_H

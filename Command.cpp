@@ -148,6 +148,7 @@ int DefineVarCommand::execute(int index, vector<string>& lexer) {
 AssignmentCommand::AssignmentCommand(const string &var): _var(var) {
 }
 int AssignmentCommand::execute(int index, vector<string> &lexer) {
+    //
     string strToAssign = lexer[index];
     int i = index;
     Variables::getInstance()->updateVariables(index, lexer);
