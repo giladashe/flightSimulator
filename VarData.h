@@ -20,6 +20,18 @@ public:
     double getValue() const;
 
     void setValue(double value);
+
+    const string &getProgStr() const;
+
+    const string &getSimStr() const;
+
+    int getBind() const;
+
+    void setProgStr(const string &progStr);
+
+    void setSimStr(const string &simStr);
+
+    void setBind(int bind);
 };
 
 

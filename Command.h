@@ -38,6 +38,8 @@ class OpenDataServerCommand : public Command{
 public:
     OpenDataServerCommand(const string &port);
     int execute(int index, vector<string>& lexer);
+    void openServer(double port);
+    void setPort(string port);
 };
 class ConnectClientCommand : public Command{
     string _ip;
@@ -45,6 +47,8 @@ class ConnectClientCommand : public Command{
 public:
     ConnectClientCommand(const string &ip, const string &port);
     int execute(int index, vector<string>& lexer);
+    void openClient(double port);
+    void setPort(string port);
 };
 
 class DefineVarCommand : public Command{

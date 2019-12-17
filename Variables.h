@@ -33,7 +33,6 @@ public:
     int calculate (string s);
 };
 
-//TODO nullptr
 
 
 

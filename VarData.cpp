@@ -17,3 +17,27 @@ double VarData::getValue() const {
 void VarData::setValue(double value) {
     _value = value;
 }
+
+const string &VarData::getProgStr() const {
+    return _progStr;
+}
+
+const string &VarData::getSimStr() const {
+    return _simStr;
+}
+
+int VarData::getBind() const {
+    return _bind;
+}
+
+void VarData::setProgStr(const string &progStr) {
+    _progStr = progStr;
+}
+
+void VarData::setSimStr(const string &simStr) {
+    _simStr = simStr;
+}
+
+void VarData::setBind(int bind) {
+    _bind = bind;
+}

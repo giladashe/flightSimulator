@@ -11,7 +11,7 @@ using namespace std;
 class Lexer {
 public:
     vector<string> lexer(ifstream & filePointer);
-    vector<string> splitByDelimiter(string &s, const string & delimiter);
+    static vector<string> splitByDelimiter(string &s, const string & delimiter);
 
     bool isParentheses(char token);
 
