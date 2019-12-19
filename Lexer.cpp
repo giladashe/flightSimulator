@@ -106,11 +106,6 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                         i++;
                     }
                     //except of "print" all expressions in () need to be without spaces
-                    if (arrayOfTokens.back() == "Print") {
-                        count++;
-                        cout << count << endl;
-                    }
-
                     if (arrayOfTokens.back() != "Print") {
                         inParentheses.erase(remove(inParentheses.begin(), inParentheses.end(), ' '),
                                             inParentheses.end());

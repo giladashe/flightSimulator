@@ -43,12 +43,13 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
     // check if expression
     double port = Variables::getInstance()->getInterpreter()->interpret(this->_port)->calculate();
     thread serverThread(&OpenDataServerCommand::openServer, this, port);
-    // serverThread.join();
+    serverThread.join();
     return 3;
 }
 
 void OpenDataServerCommand::openServer(double port) {
 //create socket
+
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
         //error
@@ -92,30 +93,52 @@ void OpenDataServerCommand::openServer(double port) {
     }
 
     close(socketfd); //closing the listening socket
-    char buffer[1024];
+
+    char buffer[1024] = {0};
     //reading from client
-    string variables[] = {"airspeed-indicator_indicated-speed-kt", "heading-indicator_offset-deg",
-                          "altimeter_indicated-altitude-ft", "altimeter_pressure-alt-ft",
-                          "attitude-indicator_indicated-pitch-deg", "attitude-indicator_indicated-roll-deg",
-                          "attitude-indicator_internal-pitch-deg", "attitude-indicator_internal-roll-deg",
-                          "encoder_indicated-altitude-ft", "encoder_pressure-alt-ft", "gps_indicated-altitude-ft",
-                          "gps_indicated-ground-speed-kt", "gps_indicated-vertical-speed", "indicated-heading-deg",
-                          "magnetic-compass_indicated-heading-deg", "slip-skid-ball_indicated-slip-skid",
-                          "turn-indicator_indicated-turn-rate", "vertical-speed-indicator_indicated-speed-fpm",
-                          "flight_aileron", "flight_elevator", "flight_rudder", "flight_flaps", "engine_throttle",
-                          "engine_rpm"};
-    while (read(client_socket, buffer, 1024) != -1) {
+    string variables[] = {"/instrumentation/airspeed-indicator/indicated-speed-kt", "/sim/time/warp",
+                          "/controls/switches/magnetos", "/instrumentation/heading-indicator/offset-deg",
+                          "/instrumentation/altimeter/indicated-altitude-ft",
+                          "/instrumentation/altimeter/pressure-alt-ft",
+                          "/instrumentation/attitude-indicator/indicated-pitch-deg",
+                          "/instrumentation/attitude-indicator/indicated-roll-deg",
+                          "/instrumentation/attitude-indicator/internal-pitch-deg",
+                          "/instrumentation/attitude-indicator/internal-roll-deg",
+                          "/instrumentation/encoder/indicated-altitude-ft",
+                          "/instrumentation/encoder/pressure-alt-ft", "/instrumentation/gps/indicated-altitude-ft",
+                          "/instrumentation/gps/indicated-ground-speed-kt",
+                          "/instrumentation/gps/indicated-vertical-speed",
+                          "/instrumentation/heading-indicator/indicated-heading-deg",
+                          "/instrumentation/magnetic-compass/indicated-heading-deg",
+                          "/instrumentation/slip-skid-ball/indicated-slip-skid",
+                          "/instrumentation/turn-indicator/indicated-turn-rate",
+                          "/instrumentation/vertical-speed-indicator/indicated-speed-fpm",
+                          "/controls/flight/aileron", "/controls/flight/elevator", "/controls/flight/rudder",
+                          "/controls/flight/flaps",
+                          "/controls/engines/engine/throttle", "/controls/engines/current-engine/throttle",
+                          "/controls/switches/master-avionics", "/controls/switches/starter",
+                          "/engines/active-engine/auto-start",
+                          "/controls/flight/speedbrake", "/sim/model/c172p/brake-parking",
+                          "/controls/engines/engine/primer",
+                          "/controls/engines/current-engine/mixture", "/controls/switches/master-bat",
+                          "/controls/switches/master-alt",
+                          "/engines/engine/rpm"};
+    while (true) {
+        read(client_socket, buffer, 1024);
+        //TODO FUNCTION
         vector<string> values;
         string valuesStr(buffer);
+        valuesStr.erase(remove(valuesStr.begin(), valuesStr.end(), '\n'), valuesStr.end());
         values = Lexer::splitByDelimiter(valuesStr, ",");
         //TODO condition of loop
         // int valread = read(client_socket, buffer, 24);
-        for (int i = 0; i < 24; i++) {
+        int i;
+        for (i = 0; i < variables->size(); i++) {
             //checks if map is empty or if the key isn't in map
             if (Variables::getInstance()->getSimMap().empty() ||
                 Variables::getInstance()->getSimMap().find(variables[i]) ==
                 Variables::getInstance()->getSimMap().end()) {
-                auto data = new VarData(stod(values[i]), "", variables[i], -1);
+                auto data = new VarData(stod(values[i]), "", variables[i], 0);
                 Variables::getInstance()->getSimMap().insert(make_pair(variables[i], data));
             } else {
                 Variables::getInstance()->getSimMap()[variables[i]]->setValue(stod(values[i]));
@@ -127,12 +150,6 @@ void OpenDataServerCommand::openServer(double port) {
             }
         }
     }
-    std::cout << buffer << std::endl;
-
-    //writing back to client
-    char *hello = "Hello, I can hear you! \n";
-    send(client_socket, hello, strlen(hello), 0);
-    std::cout << "Hello message sent\n" << std::endl;
 }
 
 void OpenDataServerCommand::setPort(string port) {
@@ -182,17 +199,20 @@ void ConnectClientCommand::openClient(double port) {
     }
 
     //if here we made a connection
-    char hello[] = "Hi from client";
-    int is_sent = send(client_socket, hello, strlen(hello), 0);
-    if (is_sent == -1) {
-        std::cout << "Error sending message" << std::endl;
-    } else {
-        std::cout << "Hello message sent to server" << std::endl;
+    for (auto var: Variables::getInstance()->getSimMap()) {
+        string message = "set " + var.second->getSimStr() + to_string(var.second->getValue())+"/r/n";
+        int is_sent = send(client_socket, message.data(), message.size(), 0);
+        if (is_sent == -1) {
+            std::cout << "Error sending message" << std::endl;
+        } else {
+            std::cout << "Hello message sent to server" << std::endl;
+        }
+
+        char buffer[1024] = {0};
+        int valread = read(client_socket, buffer, 1024);
+        std::cout << buffer << std::endl;
     }
 
-    char buffer[1024] = {0};
-    int valread = read(client_socket, buffer, 1024);
-    std::cout << buffer << std::endl;
 
     close(client_socket);
 }
@@ -279,16 +299,18 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
     if ((lexer[index + 2].compare("->") == 0) || (lexer[index + 2].compare("<-") == 0)) {
         string progStr = lexer[index + 1];
         string simStr = lexer[index + 4];
-        int bind;
+        int bindOfVar;
         if (lexer[index + 2].compare("->") == 0) {
-            bind = 1;
+            bindOfVar = 1;
         } else {
-            bind = 0;
+            bindOfVar = 0;
         }
         // create VarData obj and insert to progMap
-        VarData *varData = new VarData(-1, progStr, simStr, bind);
+        VarData *varData = new VarData(-1, progStr, simStr, bindOfVar);
         Variables::getInstance()->getProgMap()[progStr] = varData;
-
+        if (bindOfVar == 0) {
+            Variables::getInstance()->getSimMap()[simStr]->setBind(1);
+        }
         return 6;
     }
 
@@ -296,7 +318,7 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
     else if (lexer[index + 2].compare("=") == 0) {
         string progStr = lexer[index + 1];
         string simStr = "";
-        int bind = -1;
+        int bind = 0;
         // create VarData obj and insert to progMap
         VarData *varData = new VarData(-1, progStr, simStr, bind);
         Variables::getInstance()->getProgMap()[progStr] = varData;
@@ -314,6 +336,7 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     //
     string strToAssign = lexer[index];
     int i = index;
+    //update setVariables on Interpreter
     Variables::getInstance()->updateVariables(index, lexer);
 
     // string to calculate
@@ -327,7 +350,9 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
 
     // assign the value as was calculated
     (Variables::getInstance()->getProgMap().find(strToAssign)->second)->setValue(value);
-
+    if (Variables::getInstance()->getProgMap()[strToAssign]->getBind() == 1) {
+        Variables::getInstance()->getSimMap()[strToAssign]->setValue(value);
+    }
     // calculate steps to the next command in "lexer"
     int toJump = 0;
     int j = index;

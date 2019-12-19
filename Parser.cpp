@@ -14,18 +14,21 @@ Parser::Parser(vector<string> lex) {
 
 Parser::~Parser() {
 }
+
 void Parser::parse() {
     int index = 0;
-    while (index < this->lexer.size()){
-        Command* command = (Variables::getInstance()->getCommandMap().find(this->lexer[index]))->second;
-        if (command != nullptr){
+    while (index < this->lexer.size()) {
+        Command *command = (Variables::getInstance()->getCommandMap().find(this->lexer[index]))->second;
+        if (command != nullptr) {
             index += command->execute(index, this->lexer);
         }
-        // assignmentCommand
-        else{
-            Command* assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
+            // assignmentCommand
+        else {
+            Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
             index += assignmentCommand->execute(index, this->lexer);
         }
     }
+    clientThread.join;
+    serverThread.join;
 }
 
