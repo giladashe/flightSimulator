@@ -15,85 +15,110 @@ class Command {
 public:
     //virtual int execute() = 0;
     virtual ~Command() {}
-    virtual int execute(int index, vector<string>& lexer);
+
+    virtual int execute(int index, vector<string> &lexer);
 };
 
-class PrintCommand : public Command{
+class PrintCommand : public Command {
     string str;
 public:
     PrintCommand(const string &str);
-    int execute(int index, vector<string>& lexer);
+
+    int execute(int index, vector<string> &lexer);
 
 };
 
-class SleepCommand : public Command{
+class SleepCommand : public Command {
     string str;
 public:
     SleepCommand(const string &str);
-    int execute(int index, vector<string>& lexer);
+
+    int execute(int index, vector<string> &lexer);
 };
 
-class OpenDataServerCommand : public Command{
+class OpenDataServerCommand : public Command {
     string _port;
 public:
     OpenDataServerCommand(const string &port);
-    int execute(int index, vector<string>& lexer);
-    void openServer(double port);
+
+    int execute(int index, vector<string> &lexer);
+
+    void getFromClient(int clientSocket);
+
     void setPort(string port);
 };
-class ConnectClientCommand : public Command{
+
+class ConnectClientCommand : public Command {
     string _ip;
     string _port;
 public:
     ConnectClientCommand(const string &ip, const string &port);
-    int execute(int index, vector<string>& lexer);
-    void openClient(double port);
+
+    int execute(int index, vector<string> &lexer);
+
+    void sendMessages(int clientSocket);
+
     void setPort(string port);
+
+    void setIp(const string &ip);
 };
 
-class DefineVarCommand : public Command{
+class DefineVarCommand : public Command {
     string var;
     string value;
 public:
     DefineVarCommand(const string &var, const string &value);
-    int execute(int index, vector<string>& lexer);
+
+    int execute(int index, vector<string> &lexer);
 };
 
 // different from Condition (extends BinaryOperator)
-class ConditionParserCommand : public Command{
+class ConditionParserCommand : public Command {
 protected:
     string leftStr;
     string rightStr;
-    list<Command> commandList;
+    list <Command> commandList;
 public:
     ConditionParserCommand(const string &leftStr, const string &rightStr);
-    int execute(int index, vector<string>& lexer);
-    const list<Command> &getCommandList() const;
-    double checkCondition (int index, vector<string>& lexer);
+
+    int execute(int index, vector<string> &lexer);
+
+    const list <Command> &getCommandList() const;
+
+    double checkCondition(int index, vector<string> &lexer);
 };
-class IfCommand : public ConditionParserCommand{
+
+class IfCommand : public ConditionParserCommand {
 public:
     IfCommand(const string &leftStr, const string &rightStr);
-    int execute(int index, vector<string>& lexer);
+
+    int execute(int index, vector<string> &lexer);
 };
-class LoopCommand : public ConditionParserCommand{
+
+class LoopCommand : public ConditionParserCommand {
 public:
     LoopCommand(const string &leftStr, const string &rightStr);
-    int execute(int index, vector<string>& lexer);
+
+    int execute(int index, vector<string> &lexer);
 };
-class FuncCommand : public Command{
+
+class FuncCommand : public Command {
     string var;
-    list<Command> commandList;
+    list <Command> commandList;
 public:
     FuncCommand(const string &variable);
-    int execute(int index, vector<string>& lexer);
-    const list<Command> &getCommandList() const;
+
+    int execute(int index, vector<string> &lexer);
+
+    const list <Command> &getCommandList() const;
 };
-class AssignmentCommand : public Command{
+
+class AssignmentCommand : public Command {
     string _var;
 public:
     AssignmentCommand(const string &var);
-    int execute(int index, vector<string>& lexer);
+
+    int execute(int index, vector<string> &lexer);
 };
 //
 

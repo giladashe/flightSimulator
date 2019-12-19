@@ -18,8 +18,9 @@ Parser::~Parser() {
 void Parser::parse() {
     int index = 0;
     while (index < this->lexer.size()) {
-        Command *command = (Variables::getInstance()->getCommandMap().find(this->lexer[index]))->second;
-        if (command != nullptr) {
+        auto it = Variables::getInstance()->getCommandMap().find(this->lexer[index]);
+        if (it != Variables::getInstance()->getCommandMap().end()) {
+            Command *command = it->second;
             index += command->execute(index, this->lexer);
         }
             // assignmentCommand
@@ -28,7 +29,8 @@ void Parser::parse() {
             index += assignmentCommand->execute(index, this->lexer);
         }
     }
-    clientThread.join;
-    serverThread.join;
+    Variables::getInstance()->setStop(true);
+    Variables::getInstance()->getServerThread()->join();
+    Variables::getInstance()->getClientThread()->join();
 }
 

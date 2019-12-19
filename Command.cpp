@@ -42,19 +42,11 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
     setPort(lexer[index + 1]);
     // check if expression
     double port = Variables::getInstance()->getInterpreter()->interpret(this->_port)->calculate();
-    thread serverThread(&OpenDataServerCommand::openServer, this, port);
-    serverThread.join();
-    return 3;
-}
-
-void OpenDataServerCommand::openServer(double port) {
-//create socket
-
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
         //error
         std::cerr << "Could not create a socket" << std::endl;
-        return;
+
     }
 
     //bind socket to IP address
@@ -70,14 +62,14 @@ void OpenDataServerCommand::openServer(double port) {
     if (bind(socketfd, (struct sockaddr *) &address, sizeof(address)) == -1) {
         std::cerr << "Could not bind the socket to an IP" << std::endl;
         //TODO RETURN?
-        return;
+
     }
 
     //making socket listen to the port
     if (listen(socketfd, 5) == -1) { //can also set to SOMAXCON (max connections)
         std::cerr << "Error during listening command" << std::endl;
         //TODO RETURN?
-        return;
+
     } else {
         std::cout << "Server is now listening ..." << std::endl;
     }
@@ -86,14 +78,20 @@ void OpenDataServerCommand::openServer(double port) {
     int client_socket = accept(socketfd, (struct sockaddr *) &address,
                                (socklen_t *) &address);
 
+
     if (client_socket == -1) {
         std::cerr << "Error accepting client" << std::endl;
         //TODO RETURN?
-        return;
     }
 
     close(socketfd); //closing the listening socket
 
+    Variables::getInstance()->setServerThread(new thread(&OpenDataServerCommand::getFromClient, this, client_socket));
+    return 3;
+}
+
+void OpenDataServerCommand::getFromClient(int clientSocket) {
+//create socket
     char buffer[1024] = {0};
     //reading from client
     string variables[] = {"/instrumentation/airspeed-indicator/indicated-speed-kt", "/sim/time/warp",
@@ -123,30 +121,30 @@ void OpenDataServerCommand::openServer(double port) {
                           "/controls/engines/current-engine/mixture", "/controls/switches/master-bat",
                           "/controls/switches/master-alt",
                           "/engines/engine/rpm"};
-    while (true) {
-        read(client_socket, buffer, 1024);
+    while (!Variables::getInstance()->isStop()) {
+        read(clientSocket, buffer, 1024);
         //TODO FUNCTION
         vector<string> values;
         string valuesStr(buffer);
         valuesStr.erase(remove(valuesStr.begin(), valuesStr.end(), '\n'), valuesStr.end());
         values = Lexer::splitByDelimiter(valuesStr, ",");
-        //TODO condition of loop
-        // int valread = read(client_socket, buffer, 24);
         int i;
-        for (i = 0; i < variables->size(); i++) {
+
+        //TODO UPDATE THE VALUES IN SIMMAP
+        for (i = 0; i < values.size(); i++) {
             //checks if map is empty or if the key isn't in map
             if (Variables::getInstance()->getSimMap().empty() ||
                 Variables::getInstance()->getSimMap().find(variables[i]) ==
                 Variables::getInstance()->getSimMap().end()) {
                 auto data = new VarData(stod(values[i]), "", variables[i], 0);
-                Variables::getInstance()->getSimMap().insert(make_pair(variables[i], data));
+                Variables::getInstance()->setSimMap(variables[i], data);
             } else {
-                Variables::getInstance()->getSimMap()[variables[i]]->setValue(stod(values[i]));
+                Variables::getInstance()->updateSimMap(variables[i], stod(values[i]));
             }
             //if there is a bind between the maps it updates the value of the var in progMap
             if (Variables::getInstance()->getSimMap()[variables[i]]->getBind() == 1) {
-                Variables::getInstance()->getProgMap()[Variables::getInstance()->getSimMap()[variables[i]]->getProgStr()]->setValue(
-                        stod(values[i]));
+                Variables::getInstance()->updateProgMap(
+                        Variables::getInstance()->getSimMap()[variables[i]]->getProgStr(), (stod(values[i])));
             }
         }
     }
@@ -159,10 +157,32 @@ void OpenDataServerCommand::setPort(string port) {
 ConnectClientCommand::ConnectClientCommand(const string &ip, const string &port) : _ip(ip), _port(port) {}
 
 int ConnectClientCommand::execute(int index, vector<string> &lexer) {
-    setPort(lexer[index + 1]);
+    setIp(lexer[index + 1]);
+    setPort(lexer[index + 2]);
     double port = Variables::getInstance()->getInterpreter()->interpret(this->_port)->calculate();
-    thread clientThread(&ConnectClientCommand::openClient, this, port);
-    // check if port is expression
+    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (client_socket == -1) {
+        //error
+        std::cerr << "Could not create a socket" << std::endl;
+        //TODO RETURN?
+//        return;
+    }
+
+    //We need to create a sockaddr obj to hold address of server
+    sockaddr_in address{}; //in means IP4
+    address.sin_family = AF_INET;//IP4
+    address.sin_addr.s_addr = inet_addr(this->_ip.data());  //the localhost address
+    address.sin_port = htons(port);
+    // Requesting a connection with the server on local host with port 8081
+    int is_connect = 0;
+    do {
+        is_connect = connect(client_socket, (struct sockaddr *) &address, sizeof(address));
+    } while (is_connect == -1);
+    std::cout << "Client is now connected to server" << std::endl;
+    //we need to convert our number (both port & localhost)
+    // to a number that the network understands.
+    Variables::getInstance()->setClientThread(
+            new thread(&ConnectClientCommand::sendMessages, this, client_socket));
     return 4;
 }
 
@@ -170,26 +190,11 @@ void ConnectClientCommand::setPort(string port) {
     this->_port = port;
 }
 
-void ConnectClientCommand::openClient(double port) {
+void ConnectClientCommand::sendMessages(int clientSocket) {
 //create socket
-    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (client_socket == -1) {
-        //error
-        std::cerr << "Could not create a socket" << std::endl;
-        //TODO RETURN?
-        return;
-    }
 
-    //We need to create a sockaddr obj to hold address of server
-    sockaddr_in address; //in means IP4
-    address.sin_family = AF_INET;//IP4
-    address.sin_addr.s_addr = inet_addr("127.0.0.1");  //the localhost address
-    address.sin_port = htons(port);
-    //we need to convert our number (both port & localhost)
-    // to a number that the network understands.
 
-    // Requesting a connection with the server on local host with port 8081
-    int is_connect = connect(client_socket, (struct sockaddr *) &address, sizeof(address));
+/*
     if (is_connect == -1) {
         std::cerr << "Could not connect to host server" << std::endl;
         //TODO RETURN?
@@ -197,24 +202,29 @@ void ConnectClientCommand::openClient(double port) {
     } else {
         std::cout << "Client is now connected to server" << std::endl;
     }
-
-    //if here we made a connection
-    for (auto var: Variables::getInstance()->getSimMap()) {
-        string message = "set " + var.second->getSimStr() + to_string(var.second->getValue())+"/r/n";
-        int is_sent = send(client_socket, message.data(), message.size(), 0);
-        if (is_sent == -1) {
-            std::cout << "Error sending message" << std::endl;
-        } else {
-            std::cout << "Hello message sent to server" << std::endl;
+    */
+    while (!Variables::getInstance()->isStop()) {
+        //if here we made a connection
+        for (const auto &var: Variables::getInstance()->getSimMap()) {
+            string message = "set " + var.second->getSimStr() + to_string(var.second->getValue()) + "/r/n";
+            int is_sent = send(clientSocket, message.data(), message.size(), 0);
+            if (is_sent == -1) {
+                std::cout << "Error sending message" << std::endl;
+            } else {
+                std::cout << "message sent to server" << std::endl;
+            }
+            /*
+            char buffer[1024] = {0};
+            int valread = read(client_socket, buffer, 1024);
+            std::cout << buffer << std::endl;
+             */
         }
-
-        char buffer[1024] = {0};
-        int valread = read(client_socket, buffer, 1024);
-        std::cout << buffer << std::endl;
     }
+    close(clientSocket);
+}
 
-
-    close(client_socket);
+void ConnectClientCommand::setIp(const string &ip) {
+    _ip = ip;
 }
 
 IfCommand::IfCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
