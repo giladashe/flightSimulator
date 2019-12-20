@@ -87,12 +87,12 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
     close(socketfd); //closing the listening socket
 
     Variables::getInstance()->setServerThread(new thread(&OpenDataServerCommand::getFromClient, this, client_socket));
+    Variables::getInstance()->getServerThread()->detach();
     return 3;
 }
 
 void OpenDataServerCommand::getFromClient(int clientSocket) {
 //create socket
-    char buffer[1024] = {0};
     //reading from client
     string variables[] = {"/instrumentation/airspeed-indicator/indicated-speed-kt", "/sim/time/warp",
                           "/controls/switches/magnetos", "/instrumentation/heading-indicator/offset-deg",
@@ -122,29 +122,41 @@ void OpenDataServerCommand::getFromClient(int clientSocket) {
                           "/controls/switches/master-alt",
                           "/engines/engine/rpm"};
     while (!Variables::getInstance()->isStop()) {
-        read(clientSocket, buffer, 1024);
+        this_thread::sleep_for(10ms);
+        char buffer[3000] = {0};
+        read(clientSocket, buffer, 3000);
         //TODO FUNCTION
-        vector<string> values;
-        string valuesStr(buffer);
-        valuesStr.erase(remove(valuesStr.begin(), valuesStr.end(), '\n'), valuesStr.end());
-        values = Lexer::splitByDelimiter(valuesStr, ",");
-        int i;
+        string valuesStrLines(buffer);
+        // valuesStrLines = valuesStrLines.substr(0,valuesStrLines[valuesStrLines.find('\n')-1]);
+        // valuesStrLines.erase(remove(valuesStrLines.begin(), valuesStrLines.end(), '\n'), valuesStrLines.end());
+        vector<string> valuesLines = Lexer::splitByDelimiter(valuesStrLines, "\n");
+        if (!valuesLines.empty()) {
+            valuesLines.pop_back();
+        }
 
-        //TODO UPDATE THE VALUES IN SIMMAP
-        for (i = 0; i < values.size(); i++) {
-            //checks if map is empty or if the key isn't in map
-            if (Variables::getInstance()->getSimMap().empty() ||
-                Variables::getInstance()->getSimMap().find(variables[i]) ==
-                Variables::getInstance()->getSimMap().end()) {
-                auto data = new VarData(stod(values[i]), "", variables[i], 0);
-                Variables::getInstance()->setSimMap(variables[i], data);
-            } else {
-                Variables::getInstance()->updateSimMap(variables[i], stod(values[i]));
-            }
-            //if there is a bind between the maps it updates the value of the var in progMap
-            if (Variables::getInstance()->getSimMap()[variables[i]]->getBind() == 1) {
-                Variables::getInstance()->updateProgMap(
-                        Variables::getInstance()->getSimMap()[variables[i]]->getProgStr(), (stod(values[i])));
+        // for on the lines
+        int j = 0;
+        for (; j < valuesLines.size(); j++) {
+
+            vector<string> values = Lexer::splitByDelimiter(valuesLines[j], ",");
+            int i;
+
+            //TODO UPDATE THE VALUES IN SIMMAP
+            for (i = 0; i < values.size(); i++) {
+                //checks if map is empty or if the key isn't in map
+                if (Variables::getInstance()->getSimMap().empty() ||
+                    Variables::getInstance()->getSimMap().find(variables[i]) ==
+                    Variables::getInstance()->getSimMap().end()) {
+                    auto data = new VarData(stod(values[i]), "", variables[i], 0);
+                    Variables::getInstance()->setSimMap(variables[i], data);
+                } else {
+                    Variables::getInstance()->updateSimMap(variables[i], stod(values[i]));
+                }
+                //if there is a bind between the maps it updates the value of the var in progMap
+                if (Variables::getInstance()->getSimMap()[variables[i]]->getBind() == 1) {
+                    Variables::getInstance()->updateProgMap(
+                            Variables::getInstance()->getSimMap()[variables[i]]->getProgStr(), (stod(values[i])));
+                }
             }
         }
     }
@@ -183,6 +195,7 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     // to a number that the network understands.
     Variables::getInstance()->setClientThread(
             new thread(&ConnectClientCommand::sendMessages, this, client_socket));
+    Variables::getInstance()->getClientThread()->detach();
     return 4;
 }
 
@@ -204,6 +217,7 @@ void ConnectClientCommand::sendMessages(int clientSocket) {
     }
     */
     while (!Variables::getInstance()->isStop()) {
+        this_thread::sleep_for(10ms);
         //if here we made a connection
         for (const auto &var: Variables::getInstance()->getSimMap()) {
             string message = "set " + var.second->getSimStr() + to_string(var.second->getValue()) + "/r/n";

@@ -30,7 +30,7 @@ void Parser::parse() {
         }
     }
     Variables::getInstance()->setStop(true);
-    Variables::getInstance()->getServerThread()->join();
-    Variables::getInstance()->getClientThread()->join();
+  //  Variables::getInstance()->getServerThread()->detach();
+    //Variables::getInstance()->getClientThread()->detach();
 }
 
