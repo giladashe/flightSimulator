@@ -6,6 +6,7 @@
 #define FLIGHTSIMULATOR_COMMAND_H
 
 #include <string>
+#include <thread>
 #include "ex1.h"
 
 using namespace std;

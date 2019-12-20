@@ -14,10 +14,12 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include "threads.h"
 
 
 using namespace std;
-
+//thread thread1;
+//thread thread2;
 int Command::execute(int index, vector<string> &lexer) {}
 
 
@@ -85,9 +87,9 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
     }
 
     close(socketfd); //closing the listening socket
-
-    Variables::getInstance()->setServerThread(new thread(&OpenDataServerCommand::getFromClient, this, client_socket));
-    Variables::getInstance()->getServerThread()->detach();
+    thread1 = thread(&OpenDataServerCommand::getFromClient, this, client_socket);
+    //Variables::getInstance()->setServerThread(new thread(&OpenDataServerCommand::getFromClient, this, client_socket));
+    // Variables::getInstance()->getServerThread()->detach();
     return 3;
 }
 
@@ -122,9 +124,9 @@ void OpenDataServerCommand::getFromClient(int clientSocket) {
                           "/controls/switches/master-alt",
                           "/engines/engine/rpm"};
     while (!Variables::getInstance()->isStop()) {
-        this_thread::sleep_for(10ms);
-        char buffer[3000] = {0};
-        read(clientSocket, buffer, 3000);
+        //  this_thread::sleep_for(10ms);
+        char buffer[10000] = {0};
+        read(clientSocket, buffer, 10000);
         //TODO FUNCTION
         string valuesStrLines(buffer);
         // valuesStrLines = valuesStrLines.substr(0,valuesStrLines[valuesStrLines.find('\n')-1]);
@@ -193,9 +195,10 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     std::cout << "Client is now connected to server" << std::endl;
     //we need to convert our number (both port & localhost)
     // to a number that the network understands.
-    Variables::getInstance()->setClientThread(
-            new thread(&ConnectClientCommand::sendMessages, this, client_socket));
-    Variables::getInstance()->getClientThread()->detach();
+    thread2 = thread(&ConnectClientCommand::sendMessages, this, client_socket);
+    //Variables::getInstance()->setClientThread(
+      //      new thread(&ConnectClientCommand::sendMessages, this, client_socket));
+    //Variables::getInstance()->getClientThread()->detach();
     return 4;
 }
 
@@ -217,7 +220,7 @@ void ConnectClientCommand::sendMessages(int clientSocket) {
     }
     */
     while (!Variables::getInstance()->isStop()) {
-        this_thread::sleep_for(10ms);
+        //    this_thread::sleep_for(10ms);
         //if here we made a connection
         for (const auto &var: Variables::getInstance()->getSimMap()) {
             string message = "set " + var.second->getSimStr() + to_string(var.second->getValue()) + "/r/n";
