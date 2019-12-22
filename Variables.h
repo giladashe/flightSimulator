@@ -60,6 +60,12 @@ public:
 
     void updateProgMap(string key,double value);
 
+    void setCommandMap(const string& key,Command* varData);
+
+    void setProgMap(string key,VarData* varData);
+
+    void removeFromProgMap(string key);
+
 };
 
 

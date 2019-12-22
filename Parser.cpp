@@ -22,15 +22,18 @@ void Parser::parse() {
         if (it != Variables::getInstance()->getCommandMap().end()) {
             Command *command = it->second;
             index += command->execute(index, this->lexer);
-        }
+        } else if (lexer[index + 1] == "(") {
+            //function definition
+            Command *makeFuncCommand = new MakeFuncCommand();
+            index += makeFuncCommand->execute(index, this->lexer);
+            //todo command->delete
+        } else {
             // assignmentCommand
-        else {
             Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
             index += assignmentCommand->execute(index, this->lexer);
         }
     }
     Variables::getInstance()->setStop(true);
-  //  Variables::getInstance()->getServerThread()->detach();
+    //  Variables::getInstance()->getServerThread()->detach();
     //Variables::getInstance()->getClientThread()->detach();
 }
-

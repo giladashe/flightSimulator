@@ -114,6 +114,18 @@ void Variables::updateProgMap(string key, double value) {
 }
 
 
+void Variables::setCommandMap(const string &key, Command *command) {
+    this->_commandMap.insert(make_pair(key, command));
+}
+
+void Variables::setProgMap(string key, VarData *varData) {
+    this->_progMap.insert(make_pair(key, varData));
+}
+
+void Variables::removeFromProgMap(string key) {
+    this->_progMap.erase(key);
+}
+
 
 
 

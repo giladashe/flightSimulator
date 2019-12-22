@@ -105,13 +105,26 @@ public:
 
 class FuncCommand : public Command {
     string var;
-    list <Command> commandList;
+    double _val;
+    int _startIndex;
+    int _endIndex;
 public:
     FuncCommand(const string &variable);
 
     int execute(int index, vector<string> &lexer);
 
-    const list <Command> &getCommandList() const;
+    int getStartIndex() const;
+
+    int getEndIndex() const;
+
+    void setStartIndex(int startIndex);
+
+    void setEndIndex(int endIndex);
+
+    void setVal(double val);
+
+    const string &getVar() const;
+
 };
 
 class AssignmentCommand : public Command {
@@ -119,6 +132,12 @@ class AssignmentCommand : public Command {
 public:
     AssignmentCommand(const string &var);
 
+    int execute(int index, vector<string> &lexer);
+};
+
+class MakeFuncCommand : public Command {
+
+public:
     int execute(int index, vector<string> &lexer);
 };
 //

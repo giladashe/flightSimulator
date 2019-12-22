@@ -332,11 +332,6 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
 
 FuncCommand::FuncCommand(const string &variable) : var(variable) {}
 
-int FuncCommand::execute(int index, vector<string> &lexer) {}
-
-const list<Command> &FuncCommand::getCommandList() const {
-    return this->commandList;
-}
 
 DefineVarCommand::DefineVarCommand(const string &var, const string &value) : var(var), value(value) {}
 
@@ -408,4 +403,69 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
         toJump++;
     }
     return (toJump + 1);
+}
+
+int FuncCommand::execute(int index, vector<string> &lexer) {
+    //insert local variable to the map and at the end erase it
+    Variables::getInstance()->setProgMap(this->var, new VarData(this->_val, "", "", 0));
+    this->setVal(stod(lexer[index + 2]));
+    int i = this->_startIndex;
+    int j = this->_endIndex;
+    int jump = 0;
+    while (i < j) {
+        auto it = Variables::getInstance()->getCommandMap().find(lexer[index]);
+        if (it != Variables::getInstance()->getCommandMap().end()) {
+            Command *command = it->second;
+            i += command->execute(index, lexer);
+        } else {
+            // assignmentCommand
+            Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
+            i += assignmentCommand->execute(index, lexer);
+        }
+    }
+    for (jump = 0; lexer[index] != "\n"; jump++) {
+        index++;
+    }
+    Variables::getInstance()->removeFromProgMap(this->var);
+    return jump + 1;
+}
+
+int FuncCommand::getStartIndex() const {
+    return _startIndex;
+}
+
+int FuncCommand::getEndIndex() const {
+    return _endIndex;
+}
+
+void FuncCommand::setStartIndex(int startIndex) {
+    this->_startIndex = startIndex;
+}
+
+void FuncCommand::setEndIndex(int endIndex) {
+    this->_endIndex = endIndex;
+}
+
+const string &FuncCommand::getVar() const {
+    return this->var;
+}
+
+void FuncCommand::setVal(double val) {
+    this->_val = val;
+}
+int MakeFuncCommand::execute(int index, vector<string> &lexer) {
+    int i = 0;
+    i = 3;
+    int j = index;
+    FuncCommand *funcCommand = new FuncCommand(lexer[j + 3]);
+    i += 4;
+    j += i;
+    funcCommand->setStartIndex(j);
+    while (lexer[j] != "}") {
+        j++;
+        i++;
+    }
+    funcCommand->setEndIndex(j);
+    Variables::getInstance()->setCommandMap(lexer[index], funcCommand);
+    return i;
 }
