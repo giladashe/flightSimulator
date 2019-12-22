@@ -4,6 +4,7 @@
 
 #include "Variables.h"
 #include <regex>
+#include <mutex>
 
 
 unordered_map<string, VarData *> Variables::getProgMap() {
@@ -18,7 +19,11 @@ void Variables::setSimMap(string key, VarData *varData) {
     this->_simMap.insert(make_pair(key, varData));
 }
 
+mutex m;
+
 Variables *Variables::getInstance() {
+    std::lock_guard<std::mutex> guard(m);
+
     if (instance == 0) {
         instance = new Variables();
     }

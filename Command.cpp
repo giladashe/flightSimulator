@@ -123,22 +123,30 @@ void OpenDataServerCommand::getFromClient(int clientSocket){
                           "/controls/engines/current-engine/mixture", "/controls/switches/master-bat",
                           "/controls/switches/master-alt",
                           "/engines/engine/rpm"};
+    char buffer[1187];
+    string bufferToString;
+    vector<string> valuesLines;
     while (!Variables::getInstance()->isStop()) {
         //  this_thread::sleep_for(10ms);
-        char buffer[1187] = {0};
+        int i;
+        for (i = 0 ; i < 1187 ; i++){
+            buffer[i] = 0;
+        }
         int buffer_size = sizeof(buffer)/ sizeof(char);
         read(clientSocket, buffer, 1187);
         //TODO FUNCTION
-        string bufferToString = Lexer::convertToString(buffer, buffer_size);
+        if (bufferToString.length() != 0){
+            bufferToString.clear();
+        }
+        bufferToString = Lexer::convertToString(buffer, buffer_size);
         //int size = bufferToString.length();
         // valuesStrLines = valuesStrLines.substr(0,valuesStrLines[valuesStrLines.find('\n')-1]);
         // valuesStrLines.erase(remove(valuesStrLines.begin(), valuesStrLines.end(), '\n'), valuesStrLines.end());
-        vector<string> valuesLines;
         if (valuesLines.size() != 0){
             valuesLines.clear();
         }
         valuesLines = Lexer::splitByDelimiter(bufferToString, "\n");
-        if (!valuesLines.empty()){
+        if (valuesLines[valuesLines.size()-1] == ""){
             valuesLines.pop_back();
         }
 
@@ -147,8 +155,12 @@ void OpenDataServerCommand::getFromClient(int clientSocket){
         for (; j < valuesLines.size(); j++) {
 
             vector<string> values = Lexer::splitByDelimiter(valuesLines[j], ",");
-            int i;
+            // if less than 36 values erase
+            if(values.size() < 36){
+                valuesLines.erase(valuesLines.begin() + j);
+            }
 
+            int i;
             //TODO UPDATE THE VALUES IN SIMMAP
             for (i = 0; i < values.size(); i++) {
                 //checks if map is empty or if the key isn't in map
