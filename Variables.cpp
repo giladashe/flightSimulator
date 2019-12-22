@@ -72,8 +72,8 @@ void Variables::updateVariables(int index, vector<string> &lexer) {
         if (regex_match(lexer[i], smatch1, variableRegex)) {
             Variables::getInstance()->getInterpreter()
                     ->setVariables(lexer[i] + "=" +
-                    to_string((Variables::getInstance()->
-                    getProgMap().find(lexer[i])->second)->getValue()));
+                                   to_string((Variables::getInstance()->
+                                           getProgMap().find(lexer[i])->second)->getValue()));
         }
         i++;
     }
@@ -113,7 +113,6 @@ void Variables::updateProgMap(string key, double value) {
     this->_progMap[key]->setValue(value);
 }
 
-
 void Variables::setCommandMap(const string &key, Command *command) {
     this->_commandMap.insert(make_pair(key, command));
 }
@@ -125,7 +124,6 @@ void Variables::setProgMap(string key, VarData *varData) {
 void Variables::removeFromProgMap(string key) {
     this->_progMap.erase(key);
 }
-
 
 
 

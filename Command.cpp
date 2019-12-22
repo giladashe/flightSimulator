@@ -18,6 +18,7 @@
 
 
 using namespace std;
+
 //thread thread1;
 //thread thread2;
 int Command::execute(int index, vector<string> &lexer) {}
@@ -93,7 +94,7 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
     return 3;
 }
 
-void OpenDataServerCommand::getFromClient(int clientSocket){
+void OpenDataServerCommand::getFromClient(int clientSocket) {
 //create socket
     //reading from client
     string variables[] = {"/instrumentation/airspeed-indicator/indicated-speed-kt", "/sim/time/warp",
@@ -123,59 +124,71 @@ void OpenDataServerCommand::getFromClient(int clientSocket){
                           "/controls/engines/current-engine/mixture", "/controls/switches/master-bat",
                           "/controls/switches/master-alt",
                           "/engines/engine/rpm"};
+    string remain;
     char buffer[1187];
     string bufferToString;
     vector<string> valuesLines;
     while (!Variables::getInstance()->isStop()) {
         //  this_thread::sleep_for(10ms);
         int i;
-        for (i = 0 ; i < 1187 ; i++){
+        for (i = 0; i < 1187; i++) {
             buffer[i] = 0;
         }
-        int buffer_size = sizeof(buffer)/ sizeof(char);
+        int buffer_size = sizeof(buffer) / sizeof(char);
         read(clientSocket, buffer, 1187);
         //TODO FUNCTION
-        if (bufferToString.length() != 0){
+        if (bufferToString.length() != 0) {
             bufferToString.clear();
         }
         bufferToString = Lexer::convertToString(buffer, buffer_size);
+        if (remain.length() > 0) {
+            remain += bufferToString;
+            bufferToString = remain;
+            remain = "";
+        }
         //int size = bufferToString.length();
         // valuesStrLines = valuesStrLines.substr(0,valuesStrLines[valuesStrLines.find('\n')-1]);
         // valuesStrLines.erase(remove(valuesStrLines.begin(), valuesStrLines.end(), '\n'), valuesStrLines.end());
-        if (valuesLines.size() != 0){
+        if (valuesLines.size() != 0) {
             valuesLines.clear();
         }
         valuesLines = Lexer::splitByDelimiter(bufferToString, "\n");
-        if (valuesLines[valuesLines.size()-1] == ""){
+        if (valuesLines[valuesLines.size() - 1] == "") {
             valuesLines.pop_back();
         }
 
         // for on the lines
         int j = 0;
         for (; j < valuesLines.size(); j++) {
-
+            string justInCase = valuesLines[j];
             vector<string> values = Lexer::splitByDelimiter(valuesLines[j], ",");
             // if less than 36 values erase
-            if(values.size() < 36){
+            //todo keep?
+            /*
+            if (values.size() < 36) {
                 valuesLines.erase(valuesLines.begin() + j);
             }
-
-            int i;
+             */
+            if (values.size() != 36) {
+                remain += justInCase;
+                break;
+            }
+            int k;
             //TODO UPDATE THE VALUES IN SIMMAP
-            for (i = 0; i < values.size(); i++) {
+            for (k = 0; k < values.size(); k++) {
                 //checks if map is empty or if the key isn't in map
                 if (Variables::getInstance()->getSimMap().empty() ||
-                    Variables::getInstance()->getSimMap().find(variables[i]) ==
+                    Variables::getInstance()->getSimMap().find(variables[k]) ==
                     Variables::getInstance()->getSimMap().end()) {
-                    auto data = new VarData(stod(values[i]), "", variables[i], 0);
-                    Variables::getInstance()->setSimMap(variables[i], data);
+                    auto data = new VarData(stod(values[k]), "", variables[k], 0);
+                    Variables::getInstance()->setSimMap(variables[k], data);
                 } else {
-                    Variables::getInstance()->updateSimMap(variables[i], stod(values[i]));
+                    Variables::getInstance()->updateSimMap(variables[k], stod(values[k]));
                 }
                 //if there is a bind between the maps it updates the value of the var in progMap
-                if (Variables::getInstance()->getSimMap()[variables[i]]->getBind() == 1) {
+                if (Variables::getInstance()->getSimMap()[variables[k]]->getBind() == 1) {
                     Variables::getInstance()->updateProgMap(
-                            Variables::getInstance()->getSimMap()[variables[i]]->getProgStr(), (stod(values[i])));
+                            Variables::getInstance()->getSimMap()[variables[k]]->getProgStr(), (stod(values[k])));
                 }
             }
         }
@@ -216,7 +229,7 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     clientThread = thread(&ConnectClientCommand::sendMessages, this, client_socket);
     clientThread.detach();
     //Variables::getInstance()->setClientThread(
-      //      new thread(&ConnectClientCommand::sendMessages, this, client_socket));
+    //      new thread(&ConnectClientCommand::sendMessages, this, client_socket));
     //Variables::getInstance()->getClientThread()->detach();
     return 4;
 }
@@ -330,9 +343,6 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
 }
 
 
-FuncCommand::FuncCommand(const string &variable) : var(variable) {}
-
-
 DefineVarCommand::DefineVarCommand(const string &var, const string &value) : var(var), value(value) {}
 
 int DefineVarCommand::execute(int index, vector<string> &lexer) {
@@ -405,6 +415,8 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     return (toJump + 1);
 }
 
+FuncCommand::FuncCommand(const string &variable) : var(variable) {}
+
 int FuncCommand::execute(int index, vector<string> &lexer) {
     //insert local variable to the map and at the end erase it
     Variables::getInstance()->setProgMap(this->var, new VarData(this->_val, "", "", 0));
@@ -453,6 +465,7 @@ const string &FuncCommand::getVar() const {
 void FuncCommand::setVal(double val) {
     this->_val = val;
 }
+
 int MakeFuncCommand::execute(int index, vector<string> &lexer) {
     int i = 0;
     i = 3;
