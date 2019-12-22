@@ -173,3 +173,7 @@ bool Lexer::isOperator(char token) {
     //# is a symbol for UPlus and $ is a symbol for UMinus
     return token == '+' || token == '-' || token == '*' || token == '/' || token == '<' || token == '>' || token == '=';
 }
+ string Lexer::convertToString(char *a, int size) {
+    string s = a;
+    return s;
+ }

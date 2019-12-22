@@ -86,7 +86,8 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
     }
 
     close(socketfd); //closing the listening socket
-    thread1 = thread(&OpenDataServerCommand::getFromClient, this, client_socket);
+    serverThread = thread(&OpenDataServerCommand::getFromClient, this, client_socket);
+    serverThread.detach();
     //Variables::getInstance()->setServerThread(new thread(&OpenDataServerCommand::getFromClient, this, client_socket));
     // Variables::getInstance()->getServerThread()->detach();
     return 3;
@@ -124,14 +125,20 @@ void OpenDataServerCommand::getFromClient(int clientSocket){
                           "/engines/engine/rpm"};
     while (!Variables::getInstance()->isStop()) {
         //  this_thread::sleep_for(10ms);
-        char buffer[1024] = {0};
-        read(clientSocket, buffer, 1024);
+        char buffer[1187] = {0};
+        int buffer_size = sizeof(buffer)/ sizeof(char);
+        read(clientSocket, buffer, 1187);
         //TODO FUNCTION
-        string valuesStrLines(buffer);
+        string bufferToString = Lexer::convertToString(buffer, buffer_size);
+        //int size = bufferToString.length();
         // valuesStrLines = valuesStrLines.substr(0,valuesStrLines[valuesStrLines.find('\n')-1]);
         // valuesStrLines.erase(remove(valuesStrLines.begin(), valuesStrLines.end(), '\n'), valuesStrLines.end());
-        vector<string> valuesLines = Lexer::splitByDelimiter(valuesStrLines, "\n");
-        if (!valuesLines.empty()) {
+        vector<string> valuesLines;
+        if (valuesLines.size() != 0){
+            valuesLines.clear();
+        }
+        valuesLines = Lexer::splitByDelimiter(bufferToString, "\n");
+        if (!valuesLines.empty()){
             valuesLines.pop_back();
         }
 
@@ -194,7 +201,8 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     std::cout << "Client is now connected to server" << std::endl;
     //we need to convert our number (both port & localhost)
     // to a number that the network understands.
-    thread2 = thread(&ConnectClientCommand::sendMessages, this, client_socket);
+    clientThread = thread(&ConnectClientCommand::sendMessages, this, client_socket);
+    clientThread.detach();
     //Variables::getInstance()->setClientThread(
       //      new thread(&ConnectClientCommand::sendMessages, this, client_socket));
     //Variables::getInstance()->getClientThread()->detach();

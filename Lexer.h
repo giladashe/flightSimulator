@@ -16,6 +16,8 @@ public:
     bool isParentheses(char token);
 
     bool isOperator(char token);
+
+    static string convertToString(char* a, int size);
 };
 
 

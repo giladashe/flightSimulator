@@ -4,6 +4,6 @@
 
 #ifndef FLIGHTSIMULATOR_THREADS_H
 #define FLIGHTSIMULATOR_THREADS_H
-thread thread1;
-thread thread2;
+thread serverThread;
+thread clientThread;
 #endif //FLIGHTSIMULATOR_THREADS_H
