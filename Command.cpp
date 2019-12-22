@@ -216,7 +216,8 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     //We need to create a sockaddr obj to hold address of server
     sockaddr_in address{}; //in means IP4
     address.sin_family = AF_INET;//IP4
-    address.sin_addr.s_addr = inet_addr(this->_ip.data());  //the localhost address
+    //todo ip not converted properly
+    address.sin_addr.s_addr = inet_addr("127.0.0.1");  //the localhost address
     address.sin_port = htons(port);
     // Requesting a connection with the server on local host with port 8081
     int is_connect = 0;
@@ -482,3 +483,4 @@ int MakeFuncCommand::execute(int index, vector<string> &lexer) {
     Variables::getInstance()->setCommandMap(lexer[index], funcCommand);
     return i;
 }
+

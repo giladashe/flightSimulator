@@ -7,6 +7,7 @@
 
 #include <string>
 #include <thread>
+#include <netinet/in.h>
 #include "ex1.h"
 
 using namespace std;
