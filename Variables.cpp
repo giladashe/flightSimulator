@@ -67,8 +67,8 @@ void Variables::updateVariables(int index, vector<string> &lexer) {
         if (regex_match(lexer[i], smatch1, variableRegex)) {
             Variables::getInstance()->getInterpreter()
                     ->setVariables(lexer[i] + "=" +
-                                   to_string((Variables::getInstance()->getProgMap().find(
-                                           lexer[i])->second)->getValue()));
+                    to_string((Variables::getInstance()->
+                    getProgMap().find(lexer[i])->second)->getValue()));
         }
         i++;
     }

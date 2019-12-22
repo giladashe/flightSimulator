@@ -48,7 +48,6 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
     if (socketfd == -1) {
         //error
         std::cerr << "Could not create a socket" << std::endl;
-
     }
 
     //bind socket to IP address
@@ -93,7 +92,7 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
     return 3;
 }
 
-void OpenDataServerCommand::getFromClient(int clientSocket) {
+void OpenDataServerCommand::getFromClient(int clientSocket){
 //create socket
     //reading from client
     string variables[] = {"/instrumentation/airspeed-indicator/indicated-speed-kt", "/sim/time/warp",
@@ -125,8 +124,8 @@ void OpenDataServerCommand::getFromClient(int clientSocket) {
                           "/engines/engine/rpm"};
     while (!Variables::getInstance()->isStop()) {
         //  this_thread::sleep_for(10ms);
-        char buffer[10000] = {0};
-        read(clientSocket, buffer, 10000);
+        char buffer[1024] = {0};
+        read(clientSocket, buffer, 1024);
         //TODO FUNCTION
         string valuesStrLines(buffer);
         // valuesStrLines = valuesStrLines.substr(0,valuesStrLines[valuesStrLines.find('\n')-1]);
@@ -265,6 +264,7 @@ int IfCommand::execute(int index, vector<string> &lexer) {
 LoopCommand::LoopCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
 
 int LoopCommand::execute(int index, vector<string> &lexer) {
+    //TODO change indexes so will do the loop
     int i = index;
     while (this->checkCondition(index, lexer)) {
         while (lexer[i] != "}") {
