@@ -203,6 +203,7 @@ ConnectClientCommand::ConnectClientCommand(const string &ip, const string &port)
 
 int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     setIp(lexer[index + 1]);
+    this->_ip.erase(remove(_ip.begin(), _ip.end(), '"'), _ip.end());
     setPort(lexer[index + 2]);
     double port = Variables::getInstance()->getInterpreter()->interpret(this->_port)->calculate();
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -217,7 +218,7 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     sockaddr_in address{}; //in means IP4
     address.sin_family = AF_INET;//IP4
     //todo ip not converted properly
-    address.sin_addr.s_addr = inet_addr("127.0.0.1");  //the localhost address
+    address.sin_addr.s_addr = inet_addr(this->_ip.c_str());  //the localhost address
     address.sin_port = htons(port);
     // Requesting a connection with the server on local host with port 8081
     int is_connect = 0;
@@ -257,7 +258,8 @@ void ConnectClientCommand::sendMessages(int clientSocket) {
         //if here we made a connection
         for (const auto &var: Variables::getInstance()->getSimMap()) {
             string message = "set " + var.second->getSimStr() + to_string(var.second->getValue()) + "/r/n";
-            int is_sent = send(clientSocket, message.data(), message.size(), 0);
+            message.erase(remove(message.begin(), message.end(), '"'), message.end());
+            int is_sent = send(clientSocket, message.c_str(), message.length(), 0);
             if (is_sent == -1) {
                 std::cout << "Error sending message" << std::endl;
             } else {
