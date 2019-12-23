@@ -22,7 +22,7 @@ void Variables::setSimMap(string key, VarData *varData) {
 mutex m;
 
 Variables *Variables::getInstance() {
-    std::lock_guard<std::mutex> guard(m);
+    //std::lock_guard<std::mutex> guard(m);
 
     if (instance == 0) {
         instance = new Variables();
