@@ -99,7 +99,7 @@ void Variables::updateVariables(int index, vector<string> &lexer) {
     int i = index;
 
     // update the variables values on "setVariables" at Interpreter
-    while (lexer[i].compare("\n") != 0) {
+    while (lexer[i] != "\n") {
         if (regex_match(lexer[i], smatch1, variableRegex)) {
             Variables::getInstance()->getInterpreter()
                     ->setVariables(lexer[i] + "=" +
