@@ -174,6 +174,7 @@ void OpenDataServerCommand::getFromClient(int clientSocket) {
                 break;
             }
             int k;
+            Variables::getInstance()->m.try_lock();
             //TODO UPDATE THE VALUES IN SIMMAP
             for (k = 0; k < values.size(); k++) {
                 //checks if map is empty or if the key isn't in map
@@ -191,6 +192,7 @@ void OpenDataServerCommand::getFromClient(int clientSocket) {
                             Variables::getInstance()->getSimMap()[variables[k]]->getProgStr(), (stod(values[k])));
                 }
             }
+            Variables::getInstance()->m.unlock();
         }
     }
 }
@@ -256,8 +258,9 @@ void ConnectClientCommand::sendMessages(int clientSocket) {
     while (!Variables::getInstance()->isStop()) {
         //    this_thread::sleep_for(10ms);
         //if here we made a connection
+        Variables::getInstance()->m.try_lock();
         for (const auto &var: Variables::getInstance()->getSimMap()) {
-            string message = "set " + var.second->getSimStr() + to_string(var.second->getValue()) + "/r/n";
+            string message = "set " + var.second->getSimStr().substr(1,var.second->getSimStr().size()-1) + " " +to_string(var.second->getValue()) + "/r/n";
             message.erase(remove(message.begin(), message.end(), '"'), message.end());
             int is_sent = send(clientSocket, message.c_str(), message.length(), 0);
             if (is_sent == -1) {
@@ -271,6 +274,7 @@ void ConnectClientCommand::sendMessages(int clientSocket) {
             std::cout << buffer << std::endl;
              */
         }
+        Variables::getInstance()->m.unlock();
     }
     close(clientSocket);
 }
@@ -326,7 +330,9 @@ const list<Command> &ConditionParserCommand::getCommandList() const {
 }
 
 double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
+    Variables::getInstance()->m.try_lock();
     Variables::getInstance()->updateVariables(index, lexer);
+    Variables::getInstance()->m.unlock();
     // find the operator
     int i = index;
     while ((lexer[i].compare("!=") != 0) && (lexer[i].compare("==") != 0)
@@ -349,7 +355,7 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
 DefineVarCommand::DefineVarCommand(const string &var, const string &value) : var(var), value(value) {}
 
 int DefineVarCommand::execute(int index, vector<string> &lexer) {
-
+    Variables::getInstance()->m.try_lock();
     // if it's new Var definition
     if ((lexer[index + 2].compare("->") == 0) || (lexer[index + 2].compare("<-") == 0)) {
         string progStr = lexer[index + 1];
@@ -363,14 +369,19 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
         // create VarData obj and insert to progMap
         VarData *varData = new VarData(-1, progStr, simStr, bindOfVar);
         Variables::getInstance()->getProgMap()[progStr] = varData;
+        if(Variables::getInstance()->getSimMap()[simStr]== nullptr){
+            int x = 0;
+        }
         if (bindOfVar == 0) {
             Variables::getInstance()->getSimMap()[simStr]->setBind(1);
         }
+        Variables::getInstance()->m.unlock();
         return 6;
     }
 
         // assignment
     else if (lexer[index + 2].compare("=") == 0) {
+        Variables::getInstance()->m.try_lock();
         string progStr = lexer[index + 1];
         string simStr = "";
         int bind = 0;
@@ -380,6 +391,7 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
         Command *assignmentCommand =
                 Variables::getInstance()->getCommandMap().find("assign")->second;
         int toJump = assignmentCommand->execute(index + 1, lexer);
+        Variables::getInstance()->m.unlock();
         return toJump + 1;
     }
 }
@@ -392,6 +404,7 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     string strToAssign = lexer[index];
     int i = index;
     //update setVariables on Interpreter
+    Variables::getInstance()->m.try_lock();
     Variables::getInstance()->updateVariables(index, lexer);
 
     // string to calculate
@@ -415,6 +428,7 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
         j++;
         toJump++;
     }
+    Variables::getInstance()->m.unlock();
     return (toJump + 1);
 }
 
@@ -422,6 +436,7 @@ FuncCommand::FuncCommand(const string &variable) : var(variable) {}
 
 int FuncCommand::execute(int index, vector<string> &lexer) {
     //insert local variable to the map and at the end erase it
+    Variables::getInstance()->m.try_lock();
     Variables::getInstance()->setProgMap(this->var, new VarData(this->_val, "", "", 0));
     this->setVal(stod(lexer[index + 2]));
     int i = this->_startIndex;
@@ -442,6 +457,7 @@ int FuncCommand::execute(int index, vector<string> &lexer) {
         index++;
     }
     Variables::getInstance()->removeFromProgMap(this->var);
+    Variables::getInstance()->m.unlock();
     return jump + 1;
 }
 
@@ -482,7 +498,9 @@ int MakeFuncCommand::execute(int index, vector<string> &lexer) {
         i++;
     }
     funcCommand->setEndIndex(j);
+    Variables::getInstance()->m.try_lock();
     Variables::getInstance()->setCommandMap(lexer[index], funcCommand);
+    Variables::getInstance()->m.unlock();
     return i;
 }
 

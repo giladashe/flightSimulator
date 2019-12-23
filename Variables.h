@@ -8,6 +8,7 @@
 
 #include <unordered_map>
 #include <thread>
+#include <mutex>
 #include "VarData.h"
 #include "Expression.h"
 #include "ex1.h"
@@ -26,6 +27,7 @@ class Variables {
     thread *_clientThread = nullptr;
     bool _stop = false;
 public:
+    mutex m;
     static Variables *getInstance();
 
     unordered_map<string, VarData *> getProgMap();
