@@ -1,13 +1,13 @@
 //
 // Created by shaiyis on 12/14/19.
 //
-using namespace std;
 
 #include "Parser.h"
 #include "Command.h"
 #include "Variables.h"
-#include "Command.h"
 
+
+using namespace std;
 
 Parser::Parser(vector<string> lex) {
     this->lexer = lex;
@@ -16,6 +16,7 @@ Parser::Parser(vector<string> lex) {
 Parser::~Parser() {
 }
 
+using namespace std;
 void Parser::parse(){
     int index = 0;
     while (index < this->lexer.size()) {

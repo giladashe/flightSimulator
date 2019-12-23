@@ -336,10 +336,10 @@ const list<Command> &ConditionParserCommand::getCommandList() const {
 }
 
 double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
-    if (Variables::m.try_lock()){
+    //if (Variables::m.try_lock()){
         Variables::getInstance()->updateVariables(index, lexer);
-        Variables::m.unlock();
-    }
+        //Variables::m.unlock();
+    //}
     // find the operator
     int i = index;
     while ((lexer[i].compare("!=") != 0) && (lexer[i].compare("==") != 0)
@@ -362,36 +362,37 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
 DefineVarCommand::DefineVarCommand(const string &var, const string &value) : var(var), value(value) {}
 
 int DefineVarCommand::execute(int index, vector<string> &lexer) {
-    if (Variables::m.try_lock()){
-        // if it's new Var definition
-        if ((lexer[index + 2].compare("->") == 0) || (lexer[index + 2].compare("<-") == 0)) {
-            string progStr = lexer[index + 1];
-            string simStr = lexer[index + 4];
-            simStr.erase(remove(simStr.begin(), simStr.end(), '"'), simStr.end());
+    //if (Variables::m.try_lock()){
 
-            int bindOfVar;
-            if (lexer[index + 2].compare("->") == 0) {
-                bindOfVar = 1;
-            } else {
-                bindOfVar = 0;
-            }
-            // create VarData obj and insert to progMap
-            VarData *varData = new VarData(-1, progStr, simStr, bindOfVar);
-            Variables::getInstance()->getProgMap()[progStr] = varData;
-            if(Variables::getInstance()->getSimMap()[simStr]== nullptr){
-                int x = 0;
-            }
-            if (bindOfVar == 0) {
-                Variables::getInstance()->getSimMap()[simStr]->setBind(1);
-            }
-            Variables::m.unlock();
+    // if it's new Var definition
+    if ((lexer[index + 2].compare("->") == 0) || (lexer[index + 2].compare("<-") == 0)) {
+        string progStr = lexer[index + 1];
+        string simStr = lexer[index + 4];
+        simStr.erase(remove(simStr.begin(), simStr.end(), '"'), simStr.end());
+
+        int bindOfVar;
+        if (lexer[index + 2].compare("->") == 0) {
+            bindOfVar = 1;
+        } else {
+            bindOfVar = 0;
         }
+        // create VarData obj and insert to progMap
+        VarData *varData = new VarData(-1, progStr, simStr, bindOfVar);
+        Variables::getInstance()->setProgMap(progStr, varData);
+        if (Variables::getInstance()->getSimMap()[simStr] == nullptr) {
+            int x = 0;
+        }
+        if (bindOfVar == 0) {
+            Variables::getInstance()->getSimMap()[simStr]->setBind(1);
+        }
+        //Variables::m.unlock();
         return 6;
     }
 
+
         // assignment
     else if (lexer[index + 2].compare("=") == 0) {
-        if (Variables::m.try_lock()){
+        //if (Variables::m.try_lock()) {
             string progStr = lexer[index + 1];
             string simStr = "";
             int bind = 0;
@@ -401,11 +402,12 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
             Command *assignmentCommand =
                     Variables::getInstance()->getCommandMap().find("assign")->second;
             int toJump = assignmentCommand->execute(index + 1, lexer);
-            Variables::m.unlock();
+            //Variables::m.unlock();
             return toJump + 1;
-        }
+        //}
     }
 }
+
 
 AssignmentCommand::AssignmentCommand(const string &var) : _var(var) {
 }
@@ -415,7 +417,7 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     string strToAssign = lexer[index];
     int i = index;
     //update setVariables on Interpreter
-    if (Variables::m.try_lock()){
+    //if (Variables::m.try_lock()){
         Variables::getInstance()->updateVariables(index, lexer);
 
         // string to calculate
@@ -439,16 +441,16 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
             j++;
             toJump++;
         }
-        Variables::m.unlock();
+        //Variables::m.unlock();
         return (toJump + 1);
-    }
+    //}
 }
 
 FuncCommand::FuncCommand(const string &variable) : var(variable) {}
 
 int FuncCommand::execute(int index, vector<string> &lexer) {
     //insert local variable to the map and at the end erase it
-    if (Variables::m.try_lock()){
+    //if (Variables::m.try_lock()){
         Variables::getInstance()->setProgMap(this->var, new VarData(this->_val, "", "", 0));
         this->setVal(stod(lexer[index + 2]));
         int i = this->_startIndex;
@@ -469,9 +471,9 @@ int FuncCommand::execute(int index, vector<string> &lexer) {
             index++;
         }
         Variables::getInstance()->removeFromProgMap(this->var);
-        Variables::m.unlock();
+        //Variables::m.unlock();
         return jump + 1;
-    }
+    //}
 }
 
 int FuncCommand::getStartIndex() const {
@@ -511,10 +513,10 @@ int MakeFuncCommand::execute(int index, vector<string> &lexer) {
         i++;
     }
     funcCommand->setEndIndex(j);
-    if (Variables::m.try_lock()){
+    //if (Variables::m.try_lock()){
         Variables::getInstance()->setCommandMap(lexer[index], funcCommand);
-        Variables::m.unlock();
+        //Variables::m.unlock();
         return i;
-    }
+    //}
 }
 
