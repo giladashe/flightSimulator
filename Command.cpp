@@ -260,6 +260,8 @@ void ConnectClientCommand::sendMessages(int clientSocket) {
         //if here we made a connection
         Variables::getInstance()->m.try_lock();
         for (const auto &var: Variables::getInstance()->getSimMap()) {
+            cout<<"this is a shame"<<endl;
+
             string message = "set " + var.second->getSimStr().substr(1,var.second->getSimStr().size()-1) + " " +to_string(var.second->getValue()) + "/r/n";
             message.erase(remove(message.begin(), message.end(), '"'), message.end());
             int is_sent = send(clientSocket, message.c_str(), message.length(), 0);
@@ -360,6 +362,8 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
     if ((lexer[index + 2].compare("->") == 0) || (lexer[index + 2].compare("<-") == 0)) {
         string progStr = lexer[index + 1];
         string simStr = lexer[index + 4];
+        simStr.erase(remove(simStr.begin(), simStr.end(), '"'), simStr.end());
+
         int bindOfVar;
         if (lexer[index + 2].compare("->") == 0) {
             bindOfVar = 1;

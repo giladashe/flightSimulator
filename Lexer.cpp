@@ -142,6 +142,7 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                 }
             }
         }
+        cout<<"this is a shame"<<endl;
         arrayOfTokens.emplace_back("\n");
     }
 
