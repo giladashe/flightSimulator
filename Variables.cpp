@@ -7,6 +7,7 @@
 #include <mutex>
 
 
+
 unordered_map<string, VarData *> Variables::getProgMap() {
     return this->_progMap;
 }
@@ -22,8 +23,7 @@ void Variables::setSimMap(string key, VarData *varData) {
 
 Variables *Variables::getInstance() {
 
-
-    if (instance == 0) {
+    if (instance == 0){
         instance = new Variables();
     }
     return instance;
@@ -155,6 +155,7 @@ void Variables::setProgMap(string key, VarData *varData) {
 void Variables::removeFromProgMap(string key) {
     this->_progMap.erase(key);
 }
+mutex Variables::m;
 
 
 

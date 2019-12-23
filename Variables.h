@@ -16,6 +16,8 @@
 
 // singleton Variables  so all the program has access
 
+
+
 class Variables {
     Variables(); // private constructor
     unordered_map<string, VarData *> _progMap;
@@ -27,7 +29,8 @@ class Variables {
     thread *_clientThread = nullptr;
     bool _stop = false;
 public:
-    mutex m;
+    static mutex m;
+
     static Variables *getInstance();
 
     unordered_map<string, VarData *> getProgMap();
