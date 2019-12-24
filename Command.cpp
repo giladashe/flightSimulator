@@ -34,7 +34,7 @@ int PrintCommand::execute(int index, vector<string> &lexer) {
     vector<string> theMessageWithout = Lexer::splitByDelimiter(message, "\"");
     if (theMessageWithout.size() > 1) {
         message = theMessageWithout[1];
-       // message.erase(remove(message.begin(), message.end(), '"'), message.end());
+        // message.erase(remove(message.begin(), message.end(), '"'), message.end());
     } else {
         double value = Variables::getInstance()->getProgMap()[message]->getValue();
         message = to_string(value);
@@ -269,9 +269,24 @@ void ConnectClientCommand::sendMessages(int clientSocket) {
     }
     */
     while (!Variables::getInstance()->isStop()) {
+
         this_thread::sleep_for(100ms);//todo ?
         //if here we made a connection
         if (Variables::m.try_lock()) {
+            while (!Variables::getInstance()->commandsQueue.empty()) {
+                int is_sent = send(clientSocket, Variables::getInstance()->commandsQueue.front().c_str(),
+                                   Variables::getInstance()->commandsQueue.front().length(), 0);
+                if (is_sent == -1) {
+                    std::cout << "Error sending message" << std::endl;
+                } else {
+                    std::cout << "message sent to server" << std::endl;
+                    Variables::getInstance()->commandsQueue.pop();
+                }
+            }
+
+            //TODO ERASE?
+            /*
+
             for (const auto &var: Variables::getInstance()->getSimMap()) {
 
                 string message = "set " + var.second->getSimStr().substr(1, var.second->getSimStr().size() - 1) + " " +
@@ -283,12 +298,10 @@ void ConnectClientCommand::sendMessages(int clientSocket) {
                 } else {
                     std::cout << "message sent to server" << std::endl;
                 }
-                /*
-                char buffer[1024] = {0};
-                int valread = read(client_socket, buffer, 1024);
-                std::cout << buffer << std::endl;
-                 */
+
+
             }
+            */
             Variables::m.unlock();
         }
     }
@@ -314,8 +327,8 @@ int IfCommand::execute(int index, vector<string> &lexer) {
             if (command != nullptr) {
                 i += command->execute(i, lexer);
             }
-            // assignmentCommand
-            else{
+                // assignmentCommand
+            else {
                 Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
                 i += assignmentCommand->execute(i, lexer);
             }
@@ -328,6 +341,7 @@ int IfCommand::execute(int index, vector<string> &lexer) {
 LoopCommand::LoopCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
 
 using namespace std;
+
 int LoopCommand::execute(int index, vector<string> &lexer) {
     int stepsToFirstCommand;
     stepsToFirstCommand = this->stepsToFirstCommand(index, lexer);
@@ -341,16 +355,17 @@ int LoopCommand::execute(int index, vector<string> &lexer) {
             if (command != nullptr) {
                 i += command->execute(i, lexer);
             }
-            // assignmentCommand
-            else{
+                // assignmentCommand
+            else {
                 Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
                 i += assignmentCommand->execute(i, lexer);
             }
             //TODO FREE ALL COMMANDS
-            i = index + stepsToFirstCommand;
         }
-        return (stepOutOfTheScope);
+        i = index + stepsToFirstCommand;
     }
+    return (stepOutOfTheScope);
+
 }
 
 ConditionParserCommand::ConditionParserCommand(const string &leftStr, const string &rightStr) : leftStr(leftStr),
@@ -380,8 +395,8 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
     // finds leftStr & rightStr of the condition
     int j = index;
     string sidesStr = "";
-    while (lexer[j+1] != "{"){
-        sidesStr += lexer[j+1];
+    while (lexer[j + 1] != "{") {
+        sidesStr += lexer[j + 1];
         j++;
     }
     vector<string> sidesVector = Lexer::splitByDelimiter(sidesStr, op);
@@ -400,21 +415,21 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
 int ConditionParserCommand::stepsToFirstCommand(int index, vector<string> &lexer) {
     int i = index;
     int steps = 0;
-    while (lexer[i] != "\n"){
+    while (lexer[i] != "\n") {
         i++;
         steps++;
     }
-    return steps+1;
+    return steps + 1;
 }
 
 int ConditionParserCommand::stepOutOfTheScope(int index, vector<string> &lexer) {
     int i = index;
     int steps = 0;
-    while (lexer[i] != "}"){
+    while (lexer[i] != "}") {
         i++;
         steps++;
     }
-    return steps+2;
+    return steps + 2;
 }
 
 
@@ -453,7 +468,7 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
     else if (lexer[index + 2].compare("=") == 0) {
         //if (Variables::m.try_lock()) {
         string progStr = lexer[index + 1];
-        string simStr = "";
+        string simStr;
         int bind = 0;
         // create VarData obj and insert to progMap
         VarData *varData = new VarData(-1, progStr, simStr, bind);
@@ -498,6 +513,10 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     //   (Variables::getInstance()->getProgMap().find(strToAssign)->second)->setValue(value);
     if (Variables::getInstance()->getProgMap()[strToAssign]->getBind() == 1) {
         Variables::getInstance()->updateSimMap(Variables::getInstance()->getProgMap()[strToAssign]->getSimStr(), value);
+        string simStr = Variables::getInstance()->getProgMap()[strToAssign]->getSimStr();
+        string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + "/r/n";
+        message.erase(remove(message.begin(), message.end(), '"'), message.end());
+        Variables::getInstance()->commandsQueue.push(message);
         //todo remove
         //Variables::getInstance()->getSimMap()[strToAssign]->setValue(value);
     }

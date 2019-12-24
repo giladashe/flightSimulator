@@ -54,6 +54,7 @@ class ConnectClientCommand : public Command {
     string _ip;
     string _port;
 public:
+
     ConnectClientCommand(const string &ip, const string &port);
 
     int execute(int index, vector<string> &lexer);

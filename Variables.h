@@ -29,6 +29,9 @@ class Variables {
     thread *_clientThread = nullptr;
     bool _stop = false;
 public:
+
+    queue<string> commandsQueue;
+
     static mutex m;
 
     static Variables *getInstance();
@@ -59,17 +62,18 @@ public:
 
     void setStop(bool stop);
 
-    void setSimMap(string key,VarData* varData);
+    void setSimMap(string key, VarData *varData);
 
-    void updateSimMap(string key,double value);
+    void updateSimMap(string key, double value);
 
-    void updateProgMap(string key,double value);
+    void updateProgMap(string key, double value);
 
-    void setCommandMap(const string& key,Command* varData);
+    void setCommandMap(const string &key, Command *varData);
 
-    void setProgMap(string key,VarData* varData);
+    void setProgMap(string key, VarData *varData);
 
     void removeFromProgMap(string key);
+
 
 };
 
