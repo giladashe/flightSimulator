@@ -50,7 +50,7 @@ public:
 
     bool isStop() const;
 
-    // searches for variables in the curent line and update in "setVariables"
+    // searches for variables in the current line and update in "setVariables"
     // of Interpreter
     void updateVariables(int index, vector<string> &lexer);
 
@@ -77,6 +77,8 @@ public:
     void setProgMap(string key,VarData* varData);
 
     void removeFromProgMap(string key);
+
+    void updateBindSimMap(string key,int bind);
 
 };
 

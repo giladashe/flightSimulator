@@ -136,8 +136,8 @@ public:
     string replaceUnary (string s);
     void shuntingYard (string s);
     void numbersToStack();
-    bool isValidNumber(string s);
-    bool isValidVariable(string s);
+    bool isValidNumber(const string& s);
+    bool isValidVariable(const string& s);
     };
 
 #endif //EX1_EX1_H

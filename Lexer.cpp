@@ -26,9 +26,9 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
         string big = string(line);
         string small = string(line);
         //splits by '=' || '>' || '<'
-        vector<string> splitLine = this->splitByDelimiter(copyOfLine, "=");
-        vector<string> splitLineBig = this->splitByDelimiter(big, ">");
-        vector<string> splitLineSmall = this->splitByDelimiter(small, "<");
+        vector<string> splitLine = Lexer::splitByDelimiter(copyOfLine, "=");
+        vector<string> splitLineBig = Lexer::splitByDelimiter(big, ">");
+        vector<string> splitLineSmall = Lexer::splitByDelimiter(small, "<");
 
         //if it's a line like: variable = value
         if (splitLine.size() > 1 && splitLineBig.size() == 1 && splitLineSmall.size() == 1) {

@@ -36,6 +36,4 @@ void Parser::parse(){
         }
     }
     Variables::getInstance()->setStop(true);
-    //  Variables::getInstance()->getServerThread()->detach();
-    //Variables::getInstance()->getClientThread()->detach();
 }

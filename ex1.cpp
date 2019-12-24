@@ -279,10 +279,10 @@ Expression *Interpreter::interpret(const string str) {
     while (!this->queueSYA.empty()) {
 
         //  if there is +, -, *, / in front of the queue
-        if ((this->queueSYA.front().compare(plus) == 0) ||
-            (this->queueSYA.front().compare(minus) == 0) ||
-            (this->queueSYA.front().compare(mult) == 0) ||
-            (this->queueSYA.front().compare(div) == 0)) {
+        if ((this->queueSYA.front() == plus) ||
+            (this->queueSYA.front() == minus) ||
+            (this->queueSYA.front() == mult) ||
+            (this->queueSYA.front() == div)) {
 
 
             //taking 2 arguments: both from expStack
@@ -292,19 +292,19 @@ Expression *Interpreter::interpret(const string str) {
                 Expression *expression2 = this->expStack.top();
                 this->expStack.pop();
 
-                if (this->queueSYA.front().compare(plus) == 0) {
+                if (this->queueSYA.front() == plus) {
                     Expression *pl = new Plus(expression2, expression1);
                     this->expStack.push(pl);
                 }
-                if (this->queueSYA.front().compare(minus) == 0) {
+                if (this->queueSYA.front() == minus) {
                     Expression *min = new Minus(expression2, expression1);
                     this->expStack.push(min);
                 }
-                if (this->queueSYA.front().compare(mult) == 0) {
+                if (this->queueSYA.front() == mult) {
                     Expression *m = new Mul(expression2, expression1);
                     this->expStack.push(m);
                 }
-                if (this->queueSYA.front().compare(div) == 0) {
+                if (this->queueSYA.front() == div) {
                     Expression *d = new Div(expression2, expression1);
                     this->expStack.push(d);
                 }
@@ -314,20 +314,20 @@ Expression *Interpreter::interpret(const string str) {
             }
 
             //  if there is Uplus or Uminus in front of the queue
-        } else if ((this->queueSYA.front().compare(uPlus) == 0) ||
-                   (this->queueSYA.front().compare(uMinus) == 0)) {
+        } else if ((this->queueSYA.front() == uPlus) ||
+                   (this->queueSYA.front() == uMinus)) {
 
             //taking one argument from expStack
             if (!this->expStack.empty()) {
                 Expression *expression = this->expStack.top();
                 this->expStack.pop();
 
-                if (this->queueSYA.front().compare(uPlus) == 0) {
+                if (this->queueSYA.front() == uPlus) {
                     Expression *uP = new UPlus(expression);
                     this->expStack.push(uP);
                     this->queueSYA.pop();
                     numbersToStack();
-                } else if (this->queueSYA.front().compare(uMinus) == 0) {
+                } else if (this->queueSYA.front() == uMinus) {
                     Expression *uM = new UMinus(expression);
                     this->expStack.push(uM);
                     this->queueSYA.pop();
@@ -340,7 +340,7 @@ Expression *Interpreter::interpret(const string str) {
     return expression;
 }
 
-bool Interpreter::isValidNumber(string s) {
+bool Interpreter::isValidNumber(const string& s) {
     regex numberRegex("[0-9]+\\.?[0-9]*");
     smatch smatch1;
     string parO("(");
@@ -354,7 +354,7 @@ bool Interpreter::isValidNumber(string s) {
     return regex_match(s, smatch1, numberRegex);
 }
 
-bool Interpreter::isValidVariable(string s) {
+bool Interpreter::isValidVariable(const string& s) {
     regex variableRegex("[a-z|A-Z|_]+[a-z|A-Z|_|0-9]*");
     smatch smatch1;
     string parO("(");
@@ -390,11 +390,11 @@ void Interpreter::shuntingYard(string replacedStr) {
         string curr = replacedStr.substr(0, 1);
 
         // if there is a space
-        if (curr.compare(" ") == 0) {
+        if (curr == " ") {
             throw "No spaces in input";
         }
 
-        while ((curr.compare(parO) != 0) && (curr.compare(parC) != 0) && (curr.compare(plus) != 0) &&
+        while ((curr != parO) && (curr != parC) && (curr.compare(plus) != 0) &&
                (curr.compare(minus) != 0) && (curr.compare(uPlus) != 0) && (curr.compare(uMinus) != 0) &&
                (curr.compare(mult) != 0) && (curr.compare(div) != 0)) {
             if (replacedStr.size() == 1) {

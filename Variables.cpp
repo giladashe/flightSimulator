@@ -20,16 +20,7 @@ void Variables::setSimMap(string key, VarData *varData) {
     this->_simMap.insert(make_pair(key, varData));
 }
 
-
-/*Variables *Variables::getInstance() {
-
-    if (instance == 0){
-        instance = new Variables();
-    }
-    return instance;
-}*/
-
-Variables::Variables(){
+Variables::Variables() {
     this->interpreter = new Interpreter();
     Command *openDataServer = new OpenDataServerCommand("");
     Command *connectClientCommand = new ConnectClientCommand("", "");
@@ -75,7 +66,7 @@ Variables::Variables(){
                           "/controls/engines/current-engine/mixture", "/controls/switches/master-bat",
                           "/controls/switches/master-alt",
                           "/engines/engine/rpm"};
-    for (const auto & variable : variables) {
+    for (const auto &variable : variables) {
         this->_simMap[variable] = new VarData(0, "", variable, 0);
     }
 
@@ -99,10 +90,10 @@ void Variables::updateVariables(int index, vector<string> &lexer) {
     int i = index;
 
     // update the variables values on "setVariables" at Interpreter
-    while (lexer[i+1] != "\n") {
-        if (regex_match(lexer[i+1], smatch1, variableRegex)) {
-            double value = Variables::getInstance()->getProgMap()[lexer[i+1]]->getValue();
-            string variableSet = lexer[i+1] + "=" +to_string(value);
+    while (lexer[i + 1] != "\n") {
+        if (regex_match(lexer[i + 1], smatch1, variableRegex)) {
+            double value = Variables::getInstance()->getProgMap()[lexer[i + 1]]->getValue();
+            string variableSet = lexer[i + 1] + "=" + to_string(value);
             Variables::getInstance()->getInterpreter()->setVariables(variableSet);
         }
         i++;
@@ -154,8 +145,7 @@ void Variables::setProgMap(string key, VarData *varData) {
 void Variables::removeFromProgMap(string key) {
     this->_progMap.erase(key);
 }
-//mutex Variables::m;
 
-
-
-
+void Variables::updateBindSimMap(string key, int bind) {
+    this->_simMap[key]->setBind(bind);
+}
