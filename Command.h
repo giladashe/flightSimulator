@@ -88,6 +88,8 @@ public:
     const list <Command> &getCommandList() const;
 
     double checkCondition(int index, vector<string> &lexer);
+    int stepsToFirstCommand (int index, vector<string> &lexer);
+    int stepOutOfTheScope (int index, vector<string> &lexer);
 };
 
 class IfCommand : public ConditionParserCommand {

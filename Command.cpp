@@ -302,7 +302,12 @@ void ConnectClientCommand::setIp(const string &ip) {
 IfCommand::IfCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
 
 int IfCommand::execute(int index, vector<string> &lexer) {
-    int i = index;
+    int stepsToFirstCommand;
+    stepsToFirstCommand = this->stepsToFirstCommand(index, lexer);
+    int i = index + stepsToFirstCommand;
+    int stepOutOfTheScope;
+    stepOutOfTheScope = this->stepOutOfTheScope(index, lexer);
+
     if (this->checkCondition(index, lexer)) {
         while (lexer[i] != "}") {
             Command *command = (Variables::getInstance()->getCommandMap().find(lexer[i]))->second;
@@ -310,10 +315,13 @@ int IfCommand::execute(int index, vector<string> &lexer) {
                 i += command->execute(i, lexer);
             }
             // assignmentCommand
-            Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
-            i += assignmentCommand->execute(i, lexer);
+            else{
+                Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
+                i += assignmentCommand->execute(i, lexer);
+            }
+            //TODO FREE ALL COMMANDS
         }
-        return (i + 1);
+        return (stepOutOfTheScope);
     }
 }
 
@@ -321,8 +329,12 @@ LoopCommand::LoopCommand(const string &leftStr, const string &rightStr) : Condit
 
 using namespace std;
 int LoopCommand::execute(int index, vector<string> &lexer) {
-    //TODO change indexes so will do the loop
-    int i = index;
+    int stepsToFirstCommand;
+    stepsToFirstCommand = this->stepsToFirstCommand(index, lexer);
+    int i = index + stepsToFirstCommand;
+    int stepOutOfTheScope;
+    stepOutOfTheScope = this->stepOutOfTheScope(index, lexer);
+
     while (this->checkCondition(index, lexer)) {
         while (lexer[i] != "}") {
             Command *command = (Variables::getInstance()->getCommandMap().find(lexer[i]))->second;
@@ -330,10 +342,14 @@ int LoopCommand::execute(int index, vector<string> &lexer) {
                 i += command->execute(i, lexer);
             }
             // assignmentCommand
-            Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
-            i += assignmentCommand->execute(i, lexer);
+            else{
+                Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
+                i += assignmentCommand->execute(i, lexer);
+            }
+            //TODO FREE ALL COMMANDS
+            i = index + stepsToFirstCommand;
         }
-        return (i + 1);
+        return (stepOutOfTheScope);
     }
 }
 
@@ -351,6 +367,7 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
     Variables::getInstance()->updateVariables(index, lexer);
     //Variables::m.unlock();
     //}
+
     // find the operator
     int i = index;
     while ((lexer[i].compare("!=") != 0) && (lexer[i].compare("==") != 0)
@@ -360,6 +377,17 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
     }
     string op = lexer[i];
 
+    // finds leftStr & rightStr of the condition
+    int j = index;
+    string sidesStr = "";
+    while (lexer[j+1] != "{"){
+        sidesStr += lexer[j+1];
+        j++;
+    }
+    vector<string> sidesVector = Lexer::splitByDelimiter(sidesStr, op);
+    this->leftStr = sidesVector[0];
+    this->rightStr = sidesVector[1];
+
     double leftStrVal = Variables::getInstance()->calculate(this->leftStr);
     double rightStrVal = Variables::getInstance()->calculate(this->rightStr);
     Expression *left = new Value(leftStrVal);
@@ -367,6 +395,26 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
     Expression *e = new Condition(left, right, op);
 
     return (e->calculate());
+}
+
+int ConditionParserCommand::stepsToFirstCommand(int index, vector<string> &lexer) {
+    int i = index;
+    int steps = 0;
+    while (lexer[i] != "\n"){
+        i++;
+        steps++;
+    }
+    return steps+1;
+}
+
+int ConditionParserCommand::stepOutOfTheScope(int index, vector<string> &lexer) {
+    int i = index;
+    int steps = 0;
+    while (lexer[i] != "}"){
+        i++;
+        steps++;
+    }
+    return steps+2;
 }
 
 
@@ -441,7 +489,7 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     double value = Variables::getInstance()->calculate(varAndVal[1]);
 
     //todo erase
-//    double value = Variables::getInstance()->calculate(strToCalculate);
+    //double value = Variables::getInstance()->calculate(strToCalculate);
 
     // assign the value as was calculated
     Variables::getInstance()->updateProgMap(varAndVal[0], value);
