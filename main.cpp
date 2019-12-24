@@ -7,7 +7,6 @@
 
 using namespace std;
 int main(int argc, char *argv[]){
-    int x;
     Lexer lexer;
     ifstream filePointer;
     filePointer.open(argv[1],std::ifstream::in);

@@ -47,7 +47,7 @@ public:
     // of Interpreter
     void updateVariables(int index, vector<string> &lexer);
 
-    int calculate(string s);
+    double calculate(string s);
 
     thread *getServerThread() const;
 

@@ -6,7 +6,7 @@
 #include <regex>
 #include <mutex>
 
-
+using namespace std;
 
 unordered_map<string, VarData *> Variables::getProgMap() {
     return this->_progMap;
@@ -75,13 +75,13 @@ Variables::Variables() {
                           "/controls/engines/current-engine/mixture", "/controls/switches/master-bat",
                           "/controls/switches/master-alt",
                           "/engines/engine/rpm"};
-    for (int i = 0; i <36; i++) {
-        this->_simMap[variables[i]] = new VarData(0, "", variables[i], 0);
+    for (const auto & variable : variables) {
+        this->_simMap[variable] = new VarData(0, "", variable, 0);
     }
 
 }
 
-int Variables::calculate(string s) {
+double Variables::calculate(string s) {
     return this->interpreter->interpret(s)->calculate();
 }
 
@@ -99,12 +99,11 @@ void Variables::updateVariables(int index, vector<string> &lexer) {
     int i = index;
 
     // update the variables values on "setVariables" at Interpreter
-    while (lexer[i] != "\n") {
-        if (regex_match(lexer[i], smatch1, variableRegex)) {
-            Variables::getInstance()->getInterpreter()
-                    ->setVariables(lexer[i] + "=" +
-                                   to_string((Variables::getInstance()->
-                                           getProgMap().find(lexer[i])->second)->getValue()));
+    while (lexer[i+1] != "\n") {
+        if (regex_match(lexer[i+1], smatch1, variableRegex)) {
+            double value = Variables::getInstance()->getProgMap()[lexer[i+1]]->getValue();
+            string variableSet = lexer[i+1] + "=" +to_string(value);
+            Variables::getInstance()->getInterpreter()->setVariables(variableSet);
         }
         i++;
     }

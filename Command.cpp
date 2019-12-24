@@ -319,6 +319,7 @@ int IfCommand::execute(int index, vector<string> &lexer) {
 
 LoopCommand::LoopCommand(const string &leftStr, const string &rightStr) : ConditionParserCommand(leftStr, rightStr) {}
 
+using namespace std;
 int LoopCommand::execute(int index, vector<string> &lexer) {
     //TODO change indexes so will do the loop
     int i = index;
