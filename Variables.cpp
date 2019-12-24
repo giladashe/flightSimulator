@@ -21,15 +21,15 @@ void Variables::setSimMap(string key, VarData *varData) {
 }
 
 
-Variables *Variables::getInstance() {
+/*Variables *Variables::getInstance() {
 
     if (instance == 0){
         instance = new Variables();
     }
     return instance;
-}
+}*/
 
-Variables::Variables() {
+Variables::Variables(){
     this->interpreter = new Interpreter();
     Command *openDataServer = new OpenDataServerCommand("");
     Command *connectClientCommand = new ConnectClientCommand("", "");
@@ -154,7 +154,7 @@ void Variables::setProgMap(string key, VarData *varData) {
 void Variables::removeFromProgMap(string key) {
     this->_progMap.erase(key);
 }
-mutex Variables::m;
+//mutex Variables::m;
 
 
 

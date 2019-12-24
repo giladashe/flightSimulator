@@ -17,6 +17,7 @@
 // singleton Variables  so all the program has access
 
 
+using namespace std;
 
 class Variables {
     Variables(); // private constructor
@@ -29,9 +30,15 @@ class Variables {
     thread *_clientThread = nullptr;
     bool _stop = false;
 public:
-    static mutex m;
+    //static mutex m;
 
-    static Variables *getInstance();
+    queue<string> commandsQueue;
+
+    static Variables *getInstance(){
+        if (!instance)
+            instance = new Variables();
+        return instance;
+    }
 
     unordered_map<string, VarData *> getProgMap();
 

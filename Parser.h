@@ -11,6 +11,9 @@
 #include "Command.h"
 #include "VarData.h"
 
+using namespace std;
+
+
 class Parser {
     vector<string> lexer;
 public:

@@ -4,6 +4,7 @@
 
 #include "VarData.h"
 
+using namespace std;
 VarData::VarData(double value, const string &progStr, const string &simStr, int bind) :
 _value(value), _progStr(progStr), _simStr(simStr), _bind(bind) {}
 

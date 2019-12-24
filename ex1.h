@@ -11,6 +11,8 @@
 #include <vector>
 #include <list>
 
+using namespace std;
+
 //BinaryOperator
 
 class BinaryOperator : public Expression {
