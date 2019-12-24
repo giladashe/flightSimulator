@@ -20,6 +20,7 @@
 using namespace std;
 
 mutex m;
+int x;
 int Command::execute(int index, vector<string> &lexer) {}
 
 
