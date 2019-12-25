@@ -4,8 +4,8 @@
 
 #include "Parser.h"
 #include "Command.h"
-#include "Variables.h"
-
+#include "Data.h"
+#include "MakeFuncCommand.h"
 
 using namespace std;
 
@@ -20,8 +20,9 @@ using namespace std;
 void Parser::parse(){
     int index = 0;
     while (index < this->lexer.size()) {
-        auto it = Variables::getInstance()->getCommandMap().find(this->lexer[index]);
-        if (it != Variables::getInstance()->getCommandMap().end()){
+        auto commandMap = Data::getInstance()->getCommandMap();
+        auto it = commandMap.find(this->lexer[index]);
+        if (it != commandMap.end()){
             Command *command = it->second;
             index += command->execute(index, this->lexer);
         } else if (lexer[index + 1] == "("){
@@ -31,10 +32,10 @@ void Parser::parse(){
             //todo command->delete
         } else {
             // assignmentCommand
-            Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
+            Command *assignmentCommand = Data::getInstance()->getCommandMap().find("assign")->second;
             index += assignmentCommand->execute(index, this->lexer);
         }
     }
-    Variables::getInstance()->setStop(true);
+    Data::getInstance()->setStop(true);
 }
 //

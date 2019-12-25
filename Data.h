@@ -2,8 +2,8 @@
 // Created by shaiyis on 12/16/19.
 //
 //
-#ifndef FLIGHTSIMULATOR_VARIABLES_H
-#define FLIGHTSIMULATOR_VARIABLES_H
+#ifndef FLIGHTSIMULATOR_DATA_H
+#define FLIGHTSIMULATOR_DATA_H
 
 
 #include <unordered_map>
@@ -14,17 +14,17 @@
 #include "ex1.h"
 #include "Command.h"
 
-// singleton Variables  so all the program has access
+// singleton Data  so all the program has access
 
 
 using namespace std;
 
-class Variables {
-    Variables(); // private constructor
+class Data {
+    Data(); // private constructor
     unordered_map<string, VarData *> _progMap;
     unordered_map<string, VarData *> _simMap;
     unordered_map<string, Command *> _commandMap;
-    static Variables *instance;
+    static Data *instance;
     Interpreter *interpreter;
     thread *_serverThread = nullptr;
     thread *_clientThread = nullptr;
@@ -37,9 +37,9 @@ public:
 
     queue<string> commandsQueue;
 
-    static Variables *getInstance(){
+    static Data *getInstance() {
         if (!instance)
-            instance = new Variables();
+            instance = new Data();
         return instance;
     }
 
@@ -69,21 +69,21 @@ public:
 
     void setStop(bool stop);
 
-    void setSimMap(string key,VarData* varData);
+    void setSimMap(string key, VarData *varData);
 
-    void updateSimMap(string key,double value);
+    void updateSimMap(string key, double value);
 
-    void updateProgMap(string key,double value);
+    void updateProgMap(string key, double value);
 
-    void setCommandMap(const string& key,Command* varData);
+    void setCommandMap(const string &key, Command *varData);
 
-    void setProgMap(string key,VarData* varData);
+    void setProgMap(string key, VarData *varData);
 
     void removeFromProgMap(string key);
 
-    void updateBindSimMap(string key,int bind);
+    void updateBindSimMap(string key, int bind);
 
 };
 
 
-#endif //FLIGHTSIMULATOR_VARIABLES_H
+#endif //FLIGHTSIMULATOR_DATA_H
