@@ -123,6 +123,7 @@ void serverThread(int client_socket) {
 
             data->m.lock();
             for (k = 0; k < values.size(); k++) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 //checks if map is empty or if the key isn't in map
                 if (simMap.empty() || simMap.find(variables[k]) == simMap.end()) {
                     auto var_data = new VarData(stod(values[k]), "", variables[k], 0);

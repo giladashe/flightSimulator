@@ -14,7 +14,6 @@ int PrintCommand::execute(int index, vector <string> &lexer) {
     vector <string> theMessageWithout = Lexer::splitByDelimiter(message, "\"");
     if (theMessageWithout.size() > 1) {
         message = theMessageWithout[1];
-        // message.erase(remove(message.begin(), message.end(), '"'), message.end());
     } else {
         double value = Data::getInstance()->getProgMap()[message]->getValue();
         message = to_string(value);

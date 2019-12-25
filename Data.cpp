@@ -145,3 +145,4 @@ const vector<string> &Data::getXmlVariables() const {
 unordered_map<string, Command *> &Data::getCommandMap() {
     return this->_commandMap;
 }
+

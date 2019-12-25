@@ -65,6 +65,7 @@ void clientThread(int client_socket) {
     auto data = Data::getInstance();
 
     while (!data->isStop()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         //if here we made a connection
         data->m.lock();
         while (!data->commandsQueue.empty()) {

@@ -34,13 +34,12 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     data->m.lock();
     data->setValueProgMap(varAndVal[0], value);
 
-    auto prog_map = data->getProgMap(); // todo decide
+    auto prog_map = data->getProgMap();
 
     if (prog_map[strToAssign]->getBind() == 1) {
         data->setValueSimMap(prog_map[strToAssign]->getSimStr(), value);
         string simStr = prog_map[strToAssign]->getSimStr();
         string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + " \r\n";
-        //message.erase(remove(message.begin(), message.end(), '"'), message.end());
         data->commandsQueue.push(message);
     }
     data->m.unlock();

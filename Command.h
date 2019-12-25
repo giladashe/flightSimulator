@@ -17,7 +17,6 @@ using namespace std;
 class Command {
 
 public:
-    //virtual int execute() = 0;
     virtual ~Command() {}
 
     virtual int execute(int index, vector<string> &lexer);

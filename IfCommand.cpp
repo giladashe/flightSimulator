@@ -25,7 +25,6 @@ int IfCommand::execute(int index, vector <string> &lexer) {
                 Command *assignmentCommand = Data::getInstance()->getCommandMap().find("assign")->second;
                 i += assignmentCommand->execute(i, lexer);
             }
-            //TODO FREE ALL COMMANDS
         }
     }
     return stepOutOfTheScope;

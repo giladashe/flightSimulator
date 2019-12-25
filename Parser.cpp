@@ -29,7 +29,6 @@ void Parser::parse(){
             //function definition
             Command *makeFuncCommand = new MakeFuncCommand();
             index += makeFuncCommand->execute(index, this->lexer);
-            //todo command->delete
         } else {
             // assignmentCommand
             Command *assignmentCommand = Data::getInstance()->getCommandMap().find("assign")->second;

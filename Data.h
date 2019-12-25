@@ -28,13 +28,11 @@ class Data {
     Interpreter *interpreter;
     bool _stop = false;
     vector<string> xmlVariables;
+
 public:
     const vector<string> &getXmlVariables() const;
-
     mutex m;
-
     queue<string> commandsQueue;
-
     static Data *getInstance() {
         if (!instance)
             instance = new Data();
