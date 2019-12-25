@@ -29,8 +29,11 @@ class Variables {
     thread *_serverThread = nullptr;
     thread *_clientThread = nullptr;
     bool _stop = false;
+    vector<string> xmlVariables;
 public:
-    //static mutex m;
+    const vector<string> &getXmlVariables() const;
+
+    mutex m;
 
     queue<string> commandsQueue;
 
@@ -40,9 +43,9 @@ public:
         return instance;
     }
 
-    unordered_map<string, VarData *> getProgMap();
+    unordered_map<string, VarData *> &getProgMap();
 
-    unordered_map<string, VarData *> getSimMap();
+    unordered_map<string, VarData *> &getSimMap();
 
     unordered_map<string, Command *> &getCommandMap();
 

@@ -14,12 +14,15 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include "threads.h"
 
 
 using namespace std;
 
-mutex m;
+//mutex m;
+
+void serverThread(int client_socket);
+void clientThread(int client_socket);
+
 
 int Command::execute(int index, vector<string> &lexer) {}
 
@@ -51,9 +54,9 @@ int SleepCommand::execute(int index, vector<string> &lexer) {
 OpenDataServerCommand::OpenDataServerCommand(const string &port) : _port(port) {}
 
 int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
-    setPort(lexer[index + 1]);
+    //setPort(lexer[index + 1]);
     // check if expression
-    double port = Variables::getInstance()->getInterpreter()->interpret(this->_port)->calculate();
+    double port = Variables::getInstance()->getInterpreter()->interpret(lexer[index + 1])->calculate();
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
         //error
@@ -87,109 +90,23 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
     int client_socket = accept(socketfd, (struct sockaddr *) &address,
                                (socklen_t *) &address);
 
-
     if (client_socket == -1) {
         std::cerr << "Error accepting client" << std::endl;
         exit(1);
     }
 
     close(socketfd); //closing the listening socket
-    serverThread = thread(&OpenDataServerCommand::getFromClient, this, client_socket);
-    serverThread.detach();
+
+    //get from client
+
+
+    thread serverTh(serverThread, client_socket);
+    serverTh.detach();
     return 3;
 }
 
 void OpenDataServerCommand::getFromClient(int clientSocket) {
-    //create socket
-    //reading from client
-    string variables[] = {"/instrumentation/airspeed-indicator/indicated-speed-kt", "/sim/time/warp",
-                          "/controls/switches/magnetos", "/instrumentation/heading-indicator/offset-deg",
-                          "/instrumentation/altimeter/indicated-altitude-ft",
-                          "/instrumentation/altimeter/pressure-alt-ft",
-                          "/instrumentation/attitude-indicator/indicated-pitch-deg",
-                          "/instrumentation/attitude-indicator/indicated-roll-deg",
-                          "/instrumentation/attitude-indicator/internal-pitch-deg",
-                          "/instrumentation/attitude-indicator/internal-roll-deg",
-                          "/instrumentation/encoder/indicated-altitude-ft",
-                          "/instrumentation/encoder/pressure-alt-ft", "/instrumentation/gps/indicated-altitude-ft",
-                          "/instrumentation/gps/indicated-ground-speed-kt",
-                          "/instrumentation/gps/indicated-vertical-speed",
-                          "/instrumentation/heading-indicator/indicated-heading-deg",
-                          "/instrumentation/magnetic-compass/indicated-heading-deg",
-                          "/instrumentation/slip-skid-ball/indicated-slip-skid",
-                          "/instrumentation/turn-indicator/indicated-turn-rate",
-                          "/instrumentation/vertical-speed-indicator/indicated-speed-fpm",
-                          "/controls/flight/aileron", "/controls/flight/elevator", "/controls/flight/rudder",
-                          "/controls/flight/flaps",
-                          "/controls/engines/engine/throttle", "/controls/engines/current-engine/throttle",
-                          "/controls/switches/master-avionics", "/controls/switches/starter",
-                          "/engines/active-engine/auto-start",
-                          "/controls/flight/speedbrake", "/sim/model/c172p/brake-parking",
-                          "/controls/engines/engine/primer",
-                          "/controls/engines/current-engine/mixture", "/controls/switches/master-bat",
-                          "/controls/switches/master-alt",
-                          "/engines/engine/rpm"};
-    string remain;
-    char buffer[1187];
-    string bufferToString;
-    vector<string> valuesLines;
-    while (!Variables::getInstance()->isStop()) {
-        int i;
-        for (i = 0; i < 1187; i++) {
-            buffer[i] = 0;
-        }
-        int buffer_size = sizeof(buffer) / sizeof(char);
-        read(clientSocket, buffer, 1187);
-        if (bufferToString.length() != 0) {
-            bufferToString.clear();
-        }
-        bufferToString = Lexer::convertToString(buffer, buffer_size);
-        if (remain.length() > 0) {
-            remain += bufferToString;
-            bufferToString = remain;
-            remain = "";
-        }
 
-        if (!valuesLines.empty()) {
-            valuesLines.clear();
-        }
-        valuesLines = Lexer::splitByDelimiter(bufferToString, "\n");
-        if (valuesLines[valuesLines.size() - 1].empty()) {
-            valuesLines.pop_back();
-        }
-
-        // for on the lines
-        int j = 0;
-        for (; j < valuesLines.size(); j++) {
-            string justInCase = valuesLines[j];
-            vector<string> values = Lexer::splitByDelimiter(valuesLines[j], ",");
-            // put all the values on the side for next iteration
-            if (values.size() != 36) {
-                remain += justInCase;
-                break;
-            }
-            int k;
-            m.try_lock();
-            for (k = 0; k < values.size(); k++) {
-                //checks if map is empty or if the key isn't in map
-                if (Variables::getInstance()->getSimMap().empty() ||
-                    Variables::getInstance()->getSimMap().find(variables[k]) ==
-                    Variables::getInstance()->getSimMap().end()) {
-                    auto data = new VarData(stod(values[k]), "", variables[k], 0);
-                    Variables::getInstance()->setSimMap(variables[k], data);
-                } else {
-                    Variables::getInstance()->updateSimMap(variables[k], stod(values[k]));
-                }
-                //if there is a bind between the maps it updates the value of the var in progMap
-                if (Variables::getInstance()->getSimMap()[variables[k]]->getBind() == 1) {
-                    Variables::getInstance()->updateProgMap(
-                            Variables::getInstance()->getSimMap()[variables[k]]->getProgStr(), (stod(values[k])));
-                }
-            }
-            m.unlock();
-
-        }
-    }
 }
 
 void OpenDataServerCommand::setPort(string port) {
@@ -199,10 +116,11 @@ void OpenDataServerCommand::setPort(string port) {
 ConnectClientCommand::ConnectClientCommand(const string &ip, const string &port) : _ip(ip), _port(port) {}
 
 int ConnectClientCommand::execute(int index, vector<string> &lexer) {
-    setIp(lexer[index + 1]);
-    this->_ip.erase(remove(_ip.begin(), _ip.end(), '"'), _ip.end());
-    setPort(lexer[index + 2]);
-    double port = Variables::getInstance()->getInterpreter()->interpret(this->_port)->calculate();
+    string ip = lexer[index + 1];
+    //setIp(lexer[index + 1]);
+    ip.erase(remove(ip.begin(), ip.end(), '"'), ip.end());
+    string portStr = lexer[index + 2];
+    double port = Variables::getInstance()->getInterpreter()->interpret(portStr)->calculate();
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (client_socket == -1) {
         //error
@@ -213,7 +131,7 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     //We need to create a sockaddr obj to hold address of server
     sockaddr_in address{}; //in means IP4
     address.sin_family = AF_INET;//IP4
-    address.sin_addr.s_addr = inet_addr(this->_ip.c_str());  //the localhost address
+    address.sin_addr.s_addr = inet_addr(ip.c_str());  //the localhost address
     address.sin_port = htons(port);
     // Requesting a connection with the server on local host with port 8081
     int is_connect = 0;
@@ -225,8 +143,11 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     std::cout << "Client is now connected to server" << std::endl;
     //we need to convert our number (both port & localhost)
     // to a number that the network understands.
-    clientThread = thread(&ConnectClientCommand::sendMessages, this, client_socket);
-    clientThread.detach();
+
+    thread clientTh(clientThread, client_socket);
+    clientTh.detach();
+    //clientThread = thread(&ConnectClientCommand::sendMessages, this, client_socket);
+    //clientThread.detach();
     return 4;
 }
 
@@ -235,25 +156,6 @@ void ConnectClientCommand::setPort(string port) {
 }
 
 void ConnectClientCommand::sendMessages(int clientSocket) {
-//create socket
-
-    while (!Variables::getInstance()->isStop()) {
-        //if here we made a connection
-        if (m.try_lock()) {
-            while (!Variables::getInstance()->commandsQueue.empty()) {
-                int is_sent = send(clientSocket, Variables::getInstance()->commandsQueue.front().c_str(),
-                                   Variables::getInstance()->commandsQueue.front().length(), 0);
-                if (is_sent == -1) {
-                    std::cout << "Error sending message" << std::endl;
-                } else {
-                    std::cout << "message sent to server" << std::endl;
-                    Variables::getInstance()->commandsQueue.pop();
-                }
-            }
-            m.unlock();
-        }
-    }
-    close(clientSocket);
 }
 
 void ConnectClientCommand::setIp(const string &ip) {
@@ -297,9 +199,11 @@ int LoopCommand::execute(int index, vector<string> &lexer) {
 
     while ((bool) this->checkCondition(index, lexer)) {
         while (lexer[i] != "}") {
-            Command *command = (Variables::getInstance()->getCommandMap().find(lexer[i]))->second;
-            if (command != nullptr) {
-                i += command->execute(i, lexer);
+            if(Variables::getInstance()->getCommandMap().count(lexer[i])> 0){
+                Command *command = (Variables::getInstance()->getCommandMap().find(lexer[i]))->second;
+                if (command != nullptr) {
+                    i += command->execute(i, lexer);
+                }
             }
                 // assignmentCommand
             else {
@@ -392,13 +296,13 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
             bindOfVar = 0;
         }
         // create VarData obj and insert to progMap
-        m.try_lock();
-        auto *varData = new VarData(-1, progStr, simStr, bindOfVar);
+        Variables::getInstance()->m.lock();
+        auto *varData = new VarData(0, progStr, simStr, bindOfVar);
         Variables::getInstance()->setProgMap(progStr, varData);
         if (bindOfVar == 0) {
             Variables::getInstance()->updateBindSimMap(simStr, 1);
         }
-        m.unlock();
+        Variables::getInstance()->m.unlock();
         return 6;
     }
 
@@ -408,12 +312,12 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
         string simStr = "";
         int bind = 0;
         // create VarData obj and insert to progMap
-        VarData *varData = new VarData(-1, progStr, simStr, bind);
-        m.try_lock();
+        VarData *varData = new VarData(0, progStr, simStr, bind);
+        Variables::getInstance()->m.lock();
         Variables::getInstance()->setProgMap(progStr, varData);
 
         Command *assignmentCommand = Variables::getInstance()->getCommandMap().find("assign")->second;
-        m.unlock();
+        Variables::getInstance()->m.unlock();
         int toJump = assignmentCommand->execute(index + 1, lexer);
         return toJump + 1;
     }
@@ -440,18 +344,18 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     double value = Variables::getInstance()->calculate(varAndVal[1]);
 
     // assign the value as was calculated
-    m.try_lock();
+    Variables::getInstance()->m.lock();
     Variables::getInstance()->updateProgMap(varAndVal[0], value);
 
     if (Variables::getInstance()->getProgMap()[strToAssign]->getBind() == 1) {
         Variables::getInstance()->updateSimMap(Variables::getInstance()->getProgMap()[strToAssign]->getSimStr(), value);
         string simStr = Variables::getInstance()->getProgMap()[strToAssign]->getSimStr();
-        string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + "/r/n";
+        string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + " /r/n";
         message.erase(remove(message.begin(), message.end(), '"'), message.end());
         Variables::getInstance()->commandsQueue.push(message);
 
     }
-    m.unlock();
+    Variables::getInstance()->m.unlock();
 
     // calculate steps to the next command in "lexer"
     int toJump = 0;
@@ -467,10 +371,10 @@ FuncCommand::FuncCommand(const string &variable) : var(variable) {}
 
 int FuncCommand::execute(int index, vector<string> &lexer) {
     //insert local variable to the map and at the end erase it
-    m.try_lock();
+    Variables::getInstance()->m.lock();
     Variables::getInstance()->setProgMap(this->var, new VarData(this->_val, "", "", 0));
     this->setVal(stod(lexer[index + 2]));
-    m.unlock();
+    Variables::getInstance()->m.unlock();
 
     int i = this->_startIndex;
     int j = this->_endIndex;
@@ -489,9 +393,9 @@ int FuncCommand::execute(int index, vector<string> &lexer) {
     for (jump = 0; lexer[index] != "\n"; jump++) {
         index++;
     }
-    m.try_lock();
+    Variables::getInstance()->m.lock();
     Variables::getInstance()->removeFromProgMap(this->var);
-    m.unlock();
+    Variables::getInstance()->m.unlock();
 
     return jump + 1;
 }
@@ -533,10 +437,101 @@ int MakeFuncCommand::execute(int index, vector<string> &lexer) {
         i++;
     }
     funcCommand->setEndIndex(j);
-    m.try_lock();
+    Variables::getInstance()->m.lock();
     Variables::getInstance()->setCommandMap(lexer[index], funcCommand);
-    m.unlock();
+    Variables::getInstance()->m.unlock();
 
     return i;
 }
 
+void serverThread(int client_socket){
+    //reading from client
+    string remain;
+    char buffer[1187];
+    string bufferToString;
+    vector<string> valuesLines;
+    while (!Variables::getInstance()->isStop()) {
+        int i;
+        for (i = 0; i < 1187; i++) {
+            buffer[i] = 0;
+        }
+        int buffer_size = sizeof(buffer) / sizeof(char);
+        read(client_socket, buffer, 1187);
+        if (bufferToString.length() != 0) {
+            bufferToString.clear();
+        }
+        bufferToString = Lexer::convertToString(buffer, buffer_size);
+        if (remain.length() > 0) {
+            remain += bufferToString;
+            bufferToString = remain;
+            remain = "";
+        }
+
+        if (!valuesLines.empty()) {
+            valuesLines.clear();
+        }
+        valuesLines = Lexer::splitByDelimiter(bufferToString, "\n");
+        if (valuesLines[valuesLines.size() - 1].empty()) {
+            valuesLines.pop_back();
+        }
+
+        // for on the lines
+        int j = 0;
+        for (; j < valuesLines.size(); j++) {
+            string justInCase = valuesLines[j];
+            vector<string> values = Lexer::splitByDelimiter(valuesLines[j], ",");
+            // put all the values on the side for next iteration
+            if (values.size() != 36) {
+                remain += justInCase;
+                break;
+            }
+            int k;
+            Variables::getInstance()->m.lock();
+            for (k = 0; k < values.size(); k++) {
+                //checks if map is empty or if the key isn't in map
+
+                // variables is xmlVariables
+                vector<string> variables = Variables::getInstance()->getXmlVariables();
+                if (Variables::getInstance()->getSimMap().empty() ||
+                    Variables::getInstance()->getSimMap().find(variables[k]) ==
+                    Variables::getInstance()->getSimMap().end()) {
+                    auto data = new VarData(stod(values[k]), "", variables[k], 0);
+                    Variables::getInstance()->setSimMap(variables[k], data);
+                } else {
+                    Variables::getInstance()->updateSimMap(variables[k], stod(values[k]));
+                }
+                //if there is a bind between the maps it updates the value of the var in progMap
+                if ((Variables::getInstance()->getSimMap()[variables[k]]->getBind() == 1) &&
+                (Variables::getInstance()->getProgMap().find(
+                        Variables::getInstance()->getSimMap()[variables[k]]->getProgStr()) !=
+                        Variables::getInstance()->getProgMap().end())){
+                        Variables::getInstance()->updateProgMap(Variables::getInstance()->getSimMap()[variables[k]]->getProgStr(), (stod(values[k])));
+                }
+            }
+            Variables::getInstance()->m.unlock();
+
+        }
+    }
+
+}
+void clientThread(int client_socket){
+    //create socket
+
+    while (!Variables::getInstance()->isStop()) {
+        //if here we made a connection
+        Variables::getInstance()->m.lock();
+            while (!Variables::getInstance()->commandsQueue.empty()) {
+                int is_sent = send(client_socket, Variables::getInstance()->commandsQueue.front().c_str(),
+                                   Variables::getInstance()->commandsQueue.front().length(), 0);
+                if (is_sent == -1) {
+                    std::cout << "Error sending message" << std::endl;
+                } else {
+                    std::cout << "message sent to server" << std::endl;
+                    Variables::getInstance()->commandsQueue.pop();
+                }
+            }
+        Variables::getInstance()->m.unlock();
+
+    }
+    close(client_socket);
+}

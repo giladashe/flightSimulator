@@ -8,11 +8,11 @@
 
 using namespace std;
 
-unordered_map<string, VarData *> Variables::getProgMap() {
+unordered_map<string, VarData *> &Variables::getProgMap() {
     return this->_progMap;
 }
 
-unordered_map<string, VarData *> Variables::getSimMap() {
+unordered_map<string, VarData *> &Variables::getSimMap() {
     return this->_simMap;
 }
 
@@ -38,35 +38,35 @@ Variables::Variables() {
     this->_commandMap["if"] = ifCommand;
     this->_commandMap["while"] = loopCommand;
     this->_commandMap["assign"] = assignmentCommand;
+    this->xmlVariables = {"/instrumentation/airspeed-indicator/indicated-speed-kt", "/sim/time/warp",
+                             "/controls/switches/magnetos", "/instrumentation/heading-indicator/offset-deg",
+                             "/instrumentation/altimeter/indicated-altitude-ft",
+                             "/instrumentation/altimeter/pressure-alt-ft",
+                             "/instrumentation/attitude-indicator/indicated-pitch-deg",
+                             "/instrumentation/attitude-indicator/indicated-roll-deg",
+                             "/instrumentation/attitude-indicator/internal-pitch-deg",
+                             "/instrumentation/attitude-indicator/internal-roll-deg",
+                             "/instrumentation/encoder/indicated-altitude-ft",
+                             "/instrumentation/encoder/pressure-alt-ft", "/instrumentation/gps/indicated-altitude-ft",
+                             "/instrumentation/gps/indicated-ground-speed-kt",
+                             "/instrumentation/gps/indicated-vertical-speed",
+                             "/instrumentation/heading-indicator/indicated-heading-deg",
+                             "/instrumentation/magnetic-compass/indicated-heading-deg",
+                             "/instrumentation/slip-skid-ball/indicated-slip-skid",
+                             "/instrumentation/turn-indicator/indicated-turn-rate",
+                             "/instrumentation/vertical-speed-indicator/indicated-speed-fpm",
+                             "/controls/flight/aileron", "/controls/flight/elevator", "/controls/flight/rudder",
+                             "/controls/flight/flaps",
+                             "/controls/engines/engine/throttle", "/controls/engines/current-engine/throttle",
+                             "/controls/switches/master-avionics", "/controls/switches/starter",
+                             "/engines/active-engine/auto-start",
+                             "/controls/flight/speedbrake", "/sim/model/c172p/brake-parking",
+                             "/controls/engines/engine/primer",
+                             "/controls/engines/current-engine/mixture", "/controls/switches/master-bat",
+                             "/controls/switches/master-alt",
+                             "/engines/engine/rpm"};
 
-    string variables[] = {"/instrumentation/airspeed-indicator/indicated-speed-kt", "/sim/time/warp",
-                          "/controls/switches/magnetos", "/instrumentation/heading-indicator/offset-deg",
-                          "/instrumentation/altimeter/indicated-altitude-ft",
-                          "/instrumentation/altimeter/pressure-alt-ft",
-                          "/instrumentation/attitude-indicator/indicated-pitch-deg",
-                          "/instrumentation/attitude-indicator/indicated-roll-deg",
-                          "/instrumentation/attitude-indicator/internal-pitch-deg",
-                          "/instrumentation/attitude-indicator/internal-roll-deg",
-                          "/instrumentation/encoder/indicated-altitude-ft",
-                          "/instrumentation/encoder/pressure-alt-ft", "/instrumentation/gps/indicated-altitude-ft",
-                          "/instrumentation/gps/indicated-ground-speed-kt",
-                          "/instrumentation/gps/indicated-vertical-speed",
-                          "/instrumentation/heading-indicator/indicated-heading-deg",
-                          "/instrumentation/magnetic-compass/indicated-heading-deg",
-                          "/instrumentation/slip-skid-ball/indicated-slip-skid",
-                          "/instrumentation/turn-indicator/indicated-turn-rate",
-                          "/instrumentation/vertical-speed-indicator/indicated-speed-fpm",
-                          "/controls/flight/aileron", "/controls/flight/elevator", "/controls/flight/rudder",
-                          "/controls/flight/flaps",
-                          "/controls/engines/engine/throttle", "/controls/engines/current-engine/throttle",
-                          "/controls/switches/master-avionics", "/controls/switches/starter",
-                          "/engines/active-engine/auto-start",
-                          "/controls/flight/speedbrake", "/sim/model/c172p/brake-parking",
-                          "/controls/engines/engine/primer",
-                          "/controls/engines/current-engine/mixture", "/controls/switches/master-bat",
-                          "/controls/switches/master-alt",
-                          "/engines/engine/rpm"};
-    for (const auto &variable : variables) {
+    for (const auto &variable : xmlVariables) {
         this->_simMap[variable] = new VarData(0, "", variable, 0);
     }
 
@@ -80,9 +80,6 @@ Interpreter *Variables::getInterpreter() {
     return this->interpreter;
 }
 
-unordered_map<string, Command *> &Variables::getCommandMap() {
-    return this->_commandMap;
-}
 
 void Variables::updateVariables(int index, vector<string> &lexer) {
     regex variableRegex("[a-z|A-Z|_]+[a-z|A-Z|_|0-9]*");
@@ -148,4 +145,12 @@ void Variables::removeFromProgMap(string key) {
 
 void Variables::updateBindSimMap(string key, int bind) {
     this->_simMap[key]->setBind(bind);
+}
+
+const vector<string> &Variables::getXmlVariables() const {
+    return xmlVariables;
+}
+
+unordered_map<string, Command *> &Variables::getCommandMap() {
+    return this->_commandMap;
 }
