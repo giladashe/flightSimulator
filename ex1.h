@@ -14,7 +14,7 @@
 using namespace std;
 
 //BinaryOperator
-
+//
 class BinaryOperator : public Expression {
 protected:
     Expression* right;

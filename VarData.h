@@ -1,7 +1,7 @@
 //
 // Created by shaiyis on 12/13/19.
 //
-
+//
 #ifndef FLIGHTSIMULATOR_VARDATA_H
 #define FLIGHTSIMULATOR_VARDATA_H
 

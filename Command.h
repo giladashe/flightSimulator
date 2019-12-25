@@ -1,7 +1,7 @@
 //
 // Created by shaiyis on 12/13/19.
 //
-
+//
 #ifndef FLIGHTSIMULATOR_COMMAND_H
 #define FLIGHTSIMULATOR_COMMAND_H
 

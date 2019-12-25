@@ -1,7 +1,7 @@
 //
 // Created by shaiyis on 12/16/19.
 //
-
+//
 #ifndef FLIGHTSIMULATOR_VARIABLES_H
 #define FLIGHTSIMULATOR_VARIABLES_H
 

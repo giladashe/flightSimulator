@@ -20,5 +20,5 @@ public:
     static string convertToString(char* a, int size);
 };
 
-
+//
 #endif //FLIGHTSIMULATOR_LEXER_H

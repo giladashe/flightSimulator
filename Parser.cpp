@@ -37,3 +37,4 @@ void Parser::parse(){
     }
     Variables::getInstance()->setStop(true);
 }
+//
