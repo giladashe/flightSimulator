@@ -68,18 +68,22 @@ Condition::Condition(Expression *l, Expression *r, string op) : BinaryOperator(l
 }
 
 double Condition::calculate() {
+    auto left_val = this->left->calculate();
+    auto right_val = this->right->calculate();
+
+
     if (this->_op == "!=") {
-        return this->left != this->right;
+        return left_val != right_val;
     } else if (this->_op == "==") {
-        return this->left == this->right;
+        return left_val == right_val;
     } else if (this->_op == ">=") {
-        return this->left >= this->right;
+        return left_val >= right_val;
     } else if (this->_op == "<=") {
-        return this->left <= this->right;
+        return left_val <= right_val;
     } else if (this->_op == ">") {
-        return this->left > this->right;
+        return left_val > right_val;
     } else if (this->_op == "<") {
-        return this->left < this->right;
+        return left_val < right_val;
     }
 }
 

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-Parser::Parser(vector<string> lex) {
+Parser::Parser(vector<string> &lex) {
     this->lexer = lex;
 }
 

@@ -23,7 +23,7 @@ public:
 
     const list<Command> &getCommandList() const;
 
-    double checkCondition(int index, vector<string> &lexer);
+    bool checkCondition(int index, vector<string> &lexer);
 
     int stepsToFirstCommand(int index, vector<string> &lexer);
 

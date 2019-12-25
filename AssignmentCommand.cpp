@@ -32,15 +32,15 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
 
     // assign the value as was calculated
     data->m.lock();
-    data->updateProgMap(varAndVal[0], value);
+    data->setValueProgMap(varAndVal[0], value);
 
     auto prog_map = data->getProgMap(); // todo decide
 
     if (prog_map[strToAssign]->getBind() == 1) {
-        data->updateSimMap(prog_map[strToAssign]->getSimStr(), value);
+        data->setValueSimMap(prog_map[strToAssign]->getSimStr(), value);
         string simStr = prog_map[strToAssign]->getSimStr();
-        string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + " /r/n";
-        message.erase(remove(message.begin(), message.end(), '"'), message.end());
+        string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + " \r\n";
+        //message.erase(remove(message.begin(), message.end(), '"'), message.end());
         data->commandsQueue.push(message);
     }
     data->m.unlock();

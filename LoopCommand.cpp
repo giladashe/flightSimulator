@@ -14,7 +14,7 @@ int LoopCommand::execute(int index, vector <string> &lexer) {
     int stepOutOfTheScope;
     stepOutOfTheScope = this->stepOutOfTheScope(index, lexer);
 
-    while ((bool) this->checkCondition(index, lexer)) {
+    while (this->checkCondition(index, lexer)) {
         while (lexer[i] != "}") {
             if (Data::getInstance()->getCommandMap().count(lexer[i]) > 0) {
                 Command *command = (Data::getInstance()->getCommandMap().find(lexer[i]))->second;

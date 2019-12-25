@@ -12,7 +12,6 @@
 #include "LoopCommand.h"
 #include "AssignmentCommand.h"
 #include <regex>
-#include <mutex>
 
 using namespace std;
 
@@ -107,22 +106,6 @@ void Data::updateVariables(int index, vector<string> &lexer) {
 
 Data *Data::instance = 0;
 
-thread *Data::getServerThread() const {
-    return _serverThread;
-}
-
-thread *Data::getClientThread() const {
-    return _clientThread;
-}
-
-void Data::setServerThread(thread *serverThread) {
-    Data::_serverThread = serverThread;
-}
-
-void Data::setClientThread(thread *clientThread) {
-    Data::_clientThread = clientThread;
-}
-
 bool Data::isStop() const {
     return _stop;
 }
@@ -131,11 +114,11 @@ void Data::setStop(bool stop) {
     Data::_stop = stop;
 }
 
-void Data::updateSimMap(string key, double value) {
+void Data::setValueSimMap(string key, double value) {
     this->_simMap[key]->setValue(value);
 }
 
-void Data::updateProgMap(string key, double value) {
+void Data::setValueProgMap(string key, double value) {
     this->_progMap[key]->setValue(value);
 }
 

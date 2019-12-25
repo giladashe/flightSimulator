@@ -62,20 +62,22 @@ void ConnectClientCommand::setIp(const string &ip) {
 void clientThread(int client_socket) {
     //create socket
 
-    while (!Data::getInstance()->isStop()) {
+    auto data = Data::getInstance();
+
+    while (!data->isStop()) {
         //if here we made a connection
-        Data::getInstance()->m.lock();
-        while (!Data::getInstance()->commandsQueue.empty()) {
-            int is_sent = send(client_socket, Data::getInstance()->commandsQueue.front().c_str(),
-                               Data::getInstance()->commandsQueue.front().length(), 0);
+        data->m.lock();
+        while (!data->commandsQueue.empty()) {
+            int is_sent = send(client_socket, data->commandsQueue.front().c_str(),
+                               data->commandsQueue.front().length(), 0);
             if (is_sent == -1) {
                 std::cout << "Error sending message" << std::endl;
             } else {
                 std::cout << "message sent to server" << std::endl;
-                Data::getInstance()->commandsQueue.pop();
+                data->commandsQueue.pop();
             }
         }
-        Data::getInstance()->m.unlock();
+        data->m.unlock();
     }
     close(client_socket);
 }

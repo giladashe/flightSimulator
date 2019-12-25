@@ -27,9 +27,7 @@ const string &VarData::getSimStr() const {
     return _simStr;
 }
 
-int VarData::getBind() const {
-    return _bind;
-}
+
 
 void VarData::setProgStr(const string &progStr) {
     _progStr = progStr;
@@ -41,4 +39,8 @@ void VarData::setSimStr(const string &simStr) {
 
 void VarData::setBind(int bind) {
     _bind = bind;
+}
+
+int VarData::getBind() const {
+    return _bind;
 }

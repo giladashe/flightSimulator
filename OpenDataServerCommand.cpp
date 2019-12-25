@@ -71,16 +71,18 @@ void OpenDataServerCommand::setPort(string port) {
 
 void serverThread(int client_socket) {
     //reading from client
+    auto data = Data::getInstance();
     string remain;
     char buffer[1187];
     string bufferToString;
     vector<string> valuesLines;
-    while (!Data::getInstance()->isStop()) {
+    while (!data->isStop()) {
         int i;
         for (i = 0; i < 1187; i++) {
             buffer[i] = 0;
         }
         int buffer_size = sizeof(buffer) / sizeof(char);
+       // data->m.lock();
         read(client_socket, buffer, 1187);
         if (bufferToString.length() != 0) {
             bufferToString.clear();
@@ -111,30 +113,30 @@ void serverThread(int client_socket) {
                 break;
             }
             int k;
-            Data::getInstance()->m.lock();
+
+            auto simMap = data->getSimMap();
+            auto progMap = data->getProgMap();
+
+            // variables is xmlVariables
+            vector<string> variables = data->getXmlVariables();
+
+
+            data->m.lock();
             for (k = 0; k < values.size(); k++) {
                 //checks if map is empty or if the key isn't in map
-
-                // variables is xmlVariables
-                vector<string> variables = Data::getInstance()->getXmlVariables();
-                if (Data::getInstance()->getSimMap().empty() ||
-                    Data::getInstance()->getSimMap().find(variables[k]) ==
-                    Data::getInstance()->getSimMap().end()) {
-                    auto data = new VarData(stod(values[k]), "", variables[k], 0);
-                    Data::getInstance()->setSimMap(variables[k], data);
+                if (simMap.empty() || simMap.find(variables[k]) == simMap.end()) {
+                    auto var_data = new VarData(stod(values[k]), "", variables[k], 0);
+                    data->setSimMap(variables[k], var_data);
                 } else {
-                    Data::getInstance()->updateSimMap(variables[k], stod(values[k]));
+                    data->setValueSimMap(variables[k], stod(values[k]));
                 }
                 //if there is a bind between the maps it updates the value of the var in progMap
-                if ((Data::getInstance()->getSimMap()[variables[k]]->getBind() == 1) &&
-                    (Data::getInstance()->getProgMap().find(
-                            Data::getInstance()->getSimMap()[variables[k]]->getProgStr()) !=
-                     Data::getInstance()->getProgMap().end())) {
-                    Data::getInstance()->updateProgMap(
-                            Data::getInstance()->getSimMap()[variables[k]]->getProgStr(), (stod(values[k])));
+                if ((simMap[variables[k]]->getBind() == 1) &&
+                    (progMap.find(simMap[variables[k]]->getProgStr()) != progMap.end())) {
+                    data->setValueProgMap(simMap[variables[k]]->getProgStr(), (stod(values[k])));
                 }
             }
-            Data::getInstance()->m.unlock();
+            data->m.unlock();
         }
     }
     close(client_socket);

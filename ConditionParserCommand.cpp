@@ -18,7 +18,7 @@ const list<Command> &ConditionParserCommand::getCommandList() const {
     return this->commandList;
 }
 
-double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
+bool ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
     Data::getInstance()->updateVariables(index, lexer);
 
     // find the operator
@@ -46,8 +46,8 @@ double ConditionParserCommand::checkCondition(int index, vector<string> &lexer) 
     Expression *left = new Value(leftStrVal);
     Expression *right = new Value(rightStrVal);
     Expression *e = new Condition(left, right, op);
-
-    return (e->calculate());
+    bool result = (bool) (e->calculate());
+    return result;
 }
 
 int ConditionParserCommand::stepsToFirstCommand(int index, vector<string> &lexer) {

@@ -26,8 +26,6 @@ class Data {
     unordered_map<string, Command *> _commandMap;
     static Data *instance;
     Interpreter *interpreter;
-    thread *_serverThread = nullptr;
-    thread *_clientThread = nullptr;
     bool _stop = false;
     vector<string> xmlVariables;
 public:
@@ -59,21 +57,13 @@ public:
 
     double calculate(string s);
 
-    thread *getServerThread() const;
-
-    thread *getClientThread() const;
-
-    void setServerThread(thread *serverThread);
-
-    void setClientThread(thread *clientThread);
-
     void setStop(bool stop);
 
     void setSimMap(string key, VarData *varData);
 
-    void updateSimMap(string key, double value);
+    void setValueSimMap(string key, double value);
 
-    void updateProgMap(string key, double value);
+    void setValueProgMap(string key, double value);
 
     void setCommandMap(const string &key, Command *varData);
 

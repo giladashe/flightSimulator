@@ -17,7 +17,7 @@ using namespace std;
 class Parser {
     vector<string> lexer;
 public:
-    Parser(vector<string> lex);
+    Parser(vector<string>& lex);
     virtual ~Parser();
     void parse();
 };
