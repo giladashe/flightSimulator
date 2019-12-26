@@ -41,7 +41,7 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
         // create VarData obj and insert to progMap
         auto *varData = new VarData(0, progStr, simStr, 0);
 
-        Data::getInstance()->setProgMap(progStr, varData);
+        data->setProgMap(progStr, varData);
 
         Command *assignmentCommand = (Command*)data->getCommandMap("assign");
 

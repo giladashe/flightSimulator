@@ -34,15 +34,16 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     data->setValueProgMap(varAndVal[0], value);
 
 
-
-
     if (data->getBindFromProgMap(strToAssign) == 1) {
-        data->setValueSimMap(Data::getInstance()->getSimFromProgMap(strToAssign), value);
         string simStr = data->getSimFromProgMap(strToAssign);
+        if (strToAssign != "blc") {
+            data->setValueSimMap(simStr, value);
+        }
+        //put command in the queue so the client would send it to the simulator
         string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + " \r\n";
-          Data::getInstance()->queueMutex.lock();
+        data->queueMutex.lock();
         data->commandsQueue.push(message);
-          Data::getInstance()->queueMutex.unlock();
+        data->queueMutex.unlock();
     }
 
     // calculate steps to the next command in "lexer"

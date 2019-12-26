@@ -27,6 +27,7 @@ double Data::getValFromProgMap(string key) {
     return value;
 }
 
+//todo erase?
 /*
 unordered_map<string, VarData *> &Data::getSimMap() {
     return this->_simMap;
@@ -69,9 +70,9 @@ int Data::getBindFromSimMap(string key) {
 }
 
 void Data::setSimMap(string key, VarData *varData) {
-    Data::getInstance()->simMapMutex.lock();
+    this->simMapMutex.lock();
     this->_simMap.insert(make_pair(key, varData));
-    Data::getInstance()->simMapMutex.unlock();
+    this->simMapMutex.unlock();
 }
 
 Data::Data() {
@@ -191,9 +192,9 @@ void Data::removeFromProgMap(string key) {
 }
 
 void Data::updateBindSimMap(string key, int bind) {
-    Data::getInstance()->simMapMutex.lock();
+    this->simMapMutex.lock();
     this->_simMap[key]->setBind(bind);
-    Data::getInstance()->simMapMutex.unlock();
+    this->simMapMutex.unlock();
 }
 
 const vector<string> &Data::getXmlVariables() const {
@@ -201,19 +202,19 @@ const vector<string> &Data::getXmlVariables() const {
 }
 
 void * Data::getCommandMap(string key) {
-    Data::getInstance()->comMapMutex.lock();
+    this->comMapMutex.lock();
     auto command = this->_commandMap[key];
     if (this->_commandMap.find(key) == this->_commandMap.end()) {
         return nullptr;
     }
-    Data::getInstance()->comMapMutex.unlock();
+    this->comMapMutex.unlock();
 
     return command; //todo ?
 }
 
 void Data::setProgStrSimMap(string key, string progStr) {
-    Data::getInstance()->simMapMutex.lock();
+    this->simMapMutex.lock();
     this->_simMap[key]->setProgStr(progStr);
-    Data::getInstance()->simMapMutex.unlock();
+    this->simMapMutex.unlock();
 }
 

@@ -32,7 +32,7 @@ int FuncCommand::execute(int index, vector <string> &lexer) {
         index++;
     }
 
-    Data::getInstance()->removeFromProgMap(this->var);
+    data->removeFromProgMap(this->var);
 
 
     return jump + 1;

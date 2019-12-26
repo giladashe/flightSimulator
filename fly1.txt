@@ -23,7 +23,7 @@ var alt <- sim("/instrumentation/altimeter/indicated-altitude-ft")
 var rpm <- sim("/engines/engine/rpm")
 var blc -> sim("/controls/gear/brake-right")
 Print("waiting 2 minutes for gui")
-Sleep(50000)
+Sleep(65000)
 Print("let's start")
 warp = 32000
 Sleep(1000)
@@ -39,7 +39,7 @@ starter = 1
 autostart = 1
 Print("engine is warming...")
 Print(rpm)
-while rpm == 750 {
+while rpm <= 750 {
   Print(rpm)
 }
 Sleep(5000)
