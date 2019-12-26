@@ -9,7 +9,7 @@
 DefineVarCommand::DefineVarCommand(const string &var, const string &value) : var(var), value(value) {}
 
 int DefineVarCommand::execute(int index, vector<string> &lexer) {
-
+    auto data = Data::getInstance();
     // if it's new Var definition
     if ((lexer[index + 2] == "->") || (lexer[index + 2] == "<-")) {
         string progStr = lexer[index + 1];
@@ -23,7 +23,7 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
             bindOfVar = 0;
         }
         // create VarData obj and insert to progMap
-        auto data = Data::getInstance();
+
         auto *varData = new VarData(0, progStr, simStr, bindOfVar);
         data->setProgMap(progStr, varData);
         if (bindOfVar == 0) {
@@ -43,7 +43,7 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
 
         Data::getInstance()->setProgMap(progStr, varData);
 
-        Command *assignmentCommand = Data::getInstance()->getCommandMap().find("assign")->second;
+        Command *assignmentCommand = (Command*)data->getCommandMap("assign");
 
         int toJump = assignmentCommand->execute(index + 1, lexer);
         return toJump + 1;

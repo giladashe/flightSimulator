@@ -43,11 +43,11 @@ public:
         return instance;
     }
 
-    unordered_map<string, VarData *> &getProgMap();
+   // unordered_map<string, VarData *> &getProgMap();
 
-    unordered_map<string, VarData *> &getSimMap();
+   // unordered_map<string, VarData *> &getSimMap();
 
-    unordered_map<string, Command *> &getCommandMap();
+    void * getCommandMap(string key);
 
     Interpreter *getInterpreter();
 
@@ -77,6 +77,17 @@ public:
 
     void setProgStrSimMap(string key, string progStr);
 
+    double getValFromProgMap(string key);
+
+    double getValFromSimMap(string key);
+
+    string getSimFromProgMap(string key);
+
+    int getBindFromProgMap(string key);
+
+    int getBindFromSimMap(string key);
+
+    string getProgFromSimMap(string key);
 };
 
 

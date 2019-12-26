@@ -15,18 +15,63 @@
 
 using namespace std;
 
+/*
 unordered_map<string, VarData *> &Data::getProgMap() {
     return this->_progMap;
 }
+*/
+double Data::getValFromProgMap(string key) {
+    this->progMapMutex.lock();
+    auto value = this->_progMap[key]->getValue();
+    this->progMapMutex.unlock();
+    return value;
+}
 
+/*
 unordered_map<string, VarData *> &Data::getSimMap() {
     return this->_simMap;
 }
+*/
+double Data::getValFromSimMap(string key) {
+    this->simMapMutex.lock();
+    double value = this->_simMap[key]->getValue();
+    this->simMapMutex.unlock();
+    return value;
+}
+
+string Data::getProgFromSimMap(string key) {
+    this->simMapMutex.lock();
+    string progStr = this->_simMap[key]->getProgStr();
+    this->simMapMutex.unlock();
+    return progStr;
+}
+
+
+string Data::getSimFromProgMap(string key) {
+    this->progMapMutex.lock();
+    string sim = this->_progMap[key]->getSimStr();
+    this->progMapMutex.unlock();
+    return sim;
+}
+
+int Data::getBindFromProgMap(string key) {
+    this->progMapMutex.lock();
+    int bind = this->_progMap[key]->getBind();
+    this->progMapMutex.unlock();
+    return bind;
+}
+
+int Data::getBindFromSimMap(string key) {
+    this->simMapMutex.lock();
+    int bind = this->_simMap[key]->getBind();
+    this->simMapMutex.unlock();
+    return bind;
+}
 
 void Data::setSimMap(string key, VarData *varData) {
-     Data::getInstance()->simMapMutex.lock();
+    Data::getInstance()->simMapMutex.lock();
     this->_simMap.insert(make_pair(key, varData));
-     Data::getInstance()->simMapMutex.unlock();
+    Data::getInstance()->simMapMutex.unlock();
 }
 
 Data::Data() {
@@ -97,11 +142,11 @@ void Data::updateVariables(int index, vector<string> &lexer) {
     // update the variables values on "setVariables" at Interpreter
     while (lexer[i + 1] != "\n") {
         if (regex_match(lexer[i + 1], smatch1, variableRegex)) {
-              Data::getInstance()->progMapMutex.lock();
-            double value = Data::getInstance()->getProgMap()[lexer[i + 1]]->getValue();
-              Data::getInstance()->progMapMutex.unlock();
+            this->progMapMutex.lock();
+            double value = Data::getInstance()->getValFromProgMap(lexer[i + 1]);
+            this->progMapMutex.unlock();
             string variableSet = lexer[i + 1] + "=" + to_string(value);
-            Data::getInstance()->getInterpreter()->setVariables(variableSet);
+            this->getInterpreter()->setVariables(variableSet);
         }
         i++;
     }
@@ -118,50 +163,59 @@ void Data::setStop(bool stop) {
 }
 
 void Data::setValueSimMap(string key, double value) {
-     Data::getInstance()->simMapMutex.lock();
+    this->simMapMutex.lock();
     this->_simMap[key]->setValue(value);
-     Data::getInstance()->simMapMutex.unlock();
+    this->simMapMutex.unlock();
 }
 
 void Data::setValueProgMap(string key, double value) {
-      Data::getInstance()->progMapMutex.lock();
+    this->progMapMutex.lock();
     this->_progMap[key]->setValue(value);
-      Data::getInstance()->progMapMutex.unlock();
+    this->progMapMutex.unlock();
 }
 
 void Data::setCommandMap(const string &key, Command *command) {
+    this->comMapMutex.lock();
     this->_commandMap.insert(make_pair(key, command));
+    this->comMapMutex.unlock();
 }
 
 void Data::setProgMap(string key, VarData *varData) {
-      //Data::getInstance()->progMapMutex.lock();
+    this->progMapMutex.lock();
     this->_progMap.insert(make_pair(key, varData));
-      //Data::getInstance()->progMapMutex.unlock();
+    this->progMapMutex.unlock();
 }
 
 void Data::removeFromProgMap(string key) {
-      Data::getInstance()->progMapMutex.lock();
+    this->progMapMutex.lock();
     this->_progMap.erase(key);
-      Data::getInstance()->progMapMutex.unlock();
+    this->progMapMutex.unlock();
 }
 
 void Data::updateBindSimMap(string key, int bind) {
-     Data::getInstance()->simMapMutex.lock();
+    Data::getInstance()->simMapMutex.lock();
     this->_simMap[key]->setBind(bind);
-     Data::getInstance()->simMapMutex.unlock();
+    Data::getInstance()->simMapMutex.unlock();
 }
 
 const vector<string> &Data::getXmlVariables() const {
     return xmlVariables;
 }
 
-unordered_map<string, Command *> &Data::getCommandMap(){
-    return this->_commandMap;
+void * Data::getCommandMap(string key) {
+    Data::getInstance()->comMapMutex.lock();
+    auto command = this->_commandMap[key];
+    if (this->_commandMap.find(key) == this->_commandMap.end()) {
+        return nullptr;
+    }
+    Data::getInstance()->comMapMutex.unlock();
+
+    return command; //todo ?
 }
 
 void Data::setProgStrSimMap(string key, string progStr) {
-     Data::getInstance()->simMapMutex.lock();
+    Data::getInstance()->simMapMutex.lock();
     this->_simMap[key]->setProgStr(progStr);
-     Data::getInstance()->simMapMutex.unlock();
+    Data::getInstance()->simMapMutex.unlock();
 }
 

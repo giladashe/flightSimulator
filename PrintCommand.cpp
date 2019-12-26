@@ -15,9 +15,7 @@ int PrintCommand::execute(int index, vector <string> &lexer) {
     if (theMessageWithout.size() > 1) {
         message = theMessageWithout[1];
     } else {
-          Data::getInstance()->progMapMutex.lock();
-        double value = Data::getInstance()->getProgMap()[message]->getValue();
-          Data::getInstance()->progMapMutex.unlock();
+        double value = Data::getInstance()->getValFromProgMap(message);
         message = to_string(value);
     }
     cout << message << endl;

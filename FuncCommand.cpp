@@ -9,8 +9,8 @@ FuncCommand::FuncCommand(const string &variable) : var(variable) {}
 
 int FuncCommand::execute(int index, vector <string> &lexer) {
     //insert local variable to the map and at the end erase it
-
-    Data::getInstance()->setProgMap(this->var, new VarData(this->_val, "", "", 0));
+    auto data = Data::getInstance();
+    data->setProgMap(this->var, new VarData(this->_val, "", "", 0));
     this->setVal(stod(lexer[index + 2]));
 
 
@@ -18,13 +18,13 @@ int FuncCommand::execute(int index, vector <string> &lexer) {
     int j = this->_endIndex;
     int jump = 0;
     while (i < j) {
-        auto it = Data::getInstance()->getCommandMap().find(lexer[index]);
-        if (it != Data::getInstance()->getCommandMap().end()) {
-            Command *command = it->second;
+        Command* command1 = (Command*)data->getCommandMap(lexer[index]);
+        if (command1 != nullptr) {
+            Command *command = command1;
             i += command->execute(index, lexer);
         } else {
             // assignmentCommand
-            Command *assignmentCommand = Data::getInstance()->getCommandMap().find("assign")->second;
+            Command *assignmentCommand = (Command*)data->getCommandMap("assign");
             i += assignmentCommand->execute(index, lexer);
         }
     }

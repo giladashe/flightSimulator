@@ -33,14 +33,12 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     // assign the value as was calculated
     data->setValueProgMap(varAndVal[0], value);
 
-      Data::getInstance()->progMapMutex.lock();
-    auto prog_map = data->getProgMap();
-      Data::getInstance()->progMapMutex.unlock();
 
 
-    if (prog_map[strToAssign]->getBind() == 1) {
-        data->setValueSimMap(prog_map[strToAssign]->getSimStr(), value);
-        string simStr = prog_map[strToAssign]->getSimStr();
+
+    if (data->getBindFromProgMap(strToAssign) == 1) {
+        data->setValueSimMap(Data::getInstance()->getSimFromProgMap(strToAssign), value);
+        string simStr = data->getSimFromProgMap(strToAssign);
         string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + " \r\n";
           Data::getInstance()->queueMutex.lock();
         data->commandsQueue.push(message);

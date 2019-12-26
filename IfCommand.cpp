@@ -13,16 +13,16 @@ int IfCommand::execute(int index, vector <string> &lexer) {
     int i = index + stepsToFirstCommand;
     int stepOutOfTheScope;
     stepOutOfTheScope = this->stepOutOfTheScope(index, lexer);
-
+    auto data = Data::getInstance();
     if ((bool) this->checkCondition(index, lexer)) {
         while (lexer[i] != "}") {
-            Command *command = (Data::getInstance()->getCommandMap().find(lexer[i]))->second;
+            Command *command = (Command*)data->getCommandMap(lexer[i]);
             if (command != nullptr) {
                 i += command->execute(i, lexer);
             }
                 // assignmentCommand
             else {
-                Command *assignmentCommand = Data::getInstance()->getCommandMap().find("assign")->second;
+                Command *assignmentCommand = (Command*)data->getCommandMap("assign");
                 i += assignmentCommand->execute(i, lexer);
             }
         }

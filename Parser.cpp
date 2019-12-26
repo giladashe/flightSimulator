@@ -20,25 +20,23 @@ Parser::~Parser() {
 using namespace std;
 void Parser::parse(){
     int index = 0;
+    auto data = Data::getInstance();
     while (index < this->lexer.size()) {
         // sleep process for 1s
         sleep(1);
-        Data::getInstance()->comMapMutex.lock();
-        auto commandMap = Data::getInstance()->getCommandMap();
-        auto it = commandMap.find(this->lexer[index]);
-        if (it != commandMap.end()){
-            Command *command = it->second;
-            index += command->execute(index, this->lexer);
+        Command* command1 = (Command*)data->getCommandMap(this->lexer[index]);
+        if (command1 != nullptr){
+            index += command1->execute(index, this->lexer);
         } else if (lexer[index + 1] == "("){
             //function definition
             Command *makeFuncCommand = new MakeFuncCommand();
             index += makeFuncCommand->execute(index, this->lexer);
         } else {
             // assignmentCommand
-            Command *assignmentCommand = Data::getInstance()->getCommandMap().find("assign")->second;
+            Command *assignmentCommand = (Command*)data->getCommandMap("assign");
             index += assignmentCommand->execute(index, this->lexer);
         }
-        Data::getInstance()->comMapMutex.unlock();
+
 
     }
     Data::getInstance()->setStop(true);
