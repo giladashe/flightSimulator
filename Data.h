@@ -34,6 +34,7 @@ public:
     mutex simMapMutex;
     mutex progMapMutex;
     mutex queueMutex;
+    mutex comMapMutex;
 
     queue<string> commandsQueue;
     static Data *getInstance() {

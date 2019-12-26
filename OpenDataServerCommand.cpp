@@ -123,8 +123,14 @@ void serverThread(int client_socket) {
             cout << justInCase<<endl;
             int k;
 
+             Data::getInstance()->simMapMutex.lock();
             auto simMap = data->getSimMap();
+             Data::getInstance()->simMapMutex.unlock();
+
+              Data::getInstance()->progMapMutex.lock();
             auto progMap = data->getProgMap();
+              Data::getInstance()->progMapMutex.unlock();
+
 
             // variables is xmlVariables
             vector<string> variables = data->getXmlVariables();
@@ -139,6 +145,9 @@ void serverThread(int client_socket) {
                 }*/
 
                 // if the key in simMap, update
+                  Data::getInstance()->progMapMutex.lock();
+                 Data::getInstance()->simMapMutex.lock();
+
                 data->setValueSimMap(variables[k], stod(values[k]));
 
                 //if there is a bind between the maps it updates the value of the varData in progMap
@@ -146,6 +155,8 @@ void serverThread(int client_socket) {
                     (progMap.find(simMap[variables[k]]->getProgStr()) != progMap.end())) {
                     data->setValueProgMap(simMap[variables[k]]->getProgStr(), (stod(values[k])));
                 }
+                  Data::getInstance()->progMapMutex.unlock();
+                 Data::getInstance()->simMapMutex.unlock();
             }
       }
     }

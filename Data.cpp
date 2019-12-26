@@ -16,21 +16,17 @@
 using namespace std;
 
 unordered_map<string, VarData *> &Data::getProgMap() {
-    this->progMapMutex.lock();
-    auto progMap = this->_progMap;
-    this->progMapMutex.unlock();
-    return progMap;
+    return this->_progMap;
 }
 
 unordered_map<string, VarData *> &Data::getSimMap() {
-    this->simMapMutex.lock();
-    auto simMap = this->_simMap;
-    this->simMapMutex.unlock();
-    return simMap;
+    return this->_simMap;
 }
 
 void Data::setSimMap(string key, VarData *varData) {
+     Data::getInstance()->simMapMutex.lock();
     this->_simMap.insert(make_pair(key, varData));
+     Data::getInstance()->simMapMutex.unlock();
 }
 
 Data::Data() {
@@ -78,7 +74,6 @@ Data::Data() {
                           "/controls/engines/current-engine/mixture", "/controls/switches/master-bat",
                           "/controls/switches/master-alt",
                           "/engines/engine/rpm"};
-
     for (const auto &variable : xmlVariables) {
         this->_simMap[variable] = new VarData(0, "", variable, 0);
     }
@@ -102,7 +97,9 @@ void Data::updateVariables(int index, vector<string> &lexer) {
     // update the variables values on "setVariables" at Interpreter
     while (lexer[i + 1] != "\n") {
         if (regex_match(lexer[i + 1], smatch1, variableRegex)) {
+              Data::getInstance()->progMapMutex.lock();
             double value = Data::getInstance()->getProgMap()[lexer[i + 1]]->getValue();
+              Data::getInstance()->progMapMutex.unlock();
             string variableSet = lexer[i + 1] + "=" + to_string(value);
             Data::getInstance()->getInterpreter()->setVariables(variableSet);
         }
@@ -121,13 +118,15 @@ void Data::setStop(bool stop) {
 }
 
 void Data::setValueSimMap(string key, double value) {
-    this->simMapMutex.lock();
+     Data::getInstance()->simMapMutex.lock();
     this->_simMap[key]->setValue(value);
-    this->simMapMutex.unlock();
+     Data::getInstance()->simMapMutex.unlock();
 }
 
 void Data::setValueProgMap(string key, double value) {
+      Data::getInstance()->progMapMutex.lock();
     this->_progMap[key]->setValue(value);
+      Data::getInstance()->progMapMutex.unlock();
 }
 
 void Data::setCommandMap(const string &key, Command *command) {
@@ -135,15 +134,21 @@ void Data::setCommandMap(const string &key, Command *command) {
 }
 
 void Data::setProgMap(string key, VarData *varData) {
+      //Data::getInstance()->progMapMutex.lock();
     this->_progMap.insert(make_pair(key, varData));
+      //Data::getInstance()->progMapMutex.unlock();
 }
 
 void Data::removeFromProgMap(string key) {
+      Data::getInstance()->progMapMutex.lock();
     this->_progMap.erase(key);
+      Data::getInstance()->progMapMutex.unlock();
 }
 
 void Data::updateBindSimMap(string key, int bind) {
+     Data::getInstance()->simMapMutex.lock();
     this->_simMap[key]->setBind(bind);
+     Data::getInstance()->simMapMutex.unlock();
 }
 
 const vector<string> &Data::getXmlVariables() const {
@@ -155,6 +160,8 @@ unordered_map<string, Command *> &Data::getCommandMap(){
 }
 
 void Data::setProgStrSimMap(string key, string progStr) {
+     Data::getInstance()->simMapMutex.lock();
     this->_simMap[key]->setProgStr(progStr);
+     Data::getInstance()->simMapMutex.unlock();
 }
 

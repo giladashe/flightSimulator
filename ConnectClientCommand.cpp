@@ -64,7 +64,7 @@ void clientThread(int client_socket) {
 
     while (!data->isStop()) {
         //if here we made a connection
-
+          Data::getInstance()->queueMutex.lock();
         while (!data->commandsQueue.empty()) {
             int is_sent = send(client_socket, data->commandsQueue.front().c_str(),
                                data->commandsQueue.front().length(), 0);
@@ -75,6 +75,7 @@ void clientThread(int client_socket) {
                 data->commandsQueue.pop();
             }
         }
-  }
+          Data::getInstance()->queueMutex.unlock();
+    }
     close(client_socket);
 }

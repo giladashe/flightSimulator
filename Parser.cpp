@@ -23,6 +23,7 @@ void Parser::parse(){
     while (index < this->lexer.size()) {
         // sleep process for 1s
         sleep(1);
+        Data::getInstance()->comMapMutex.lock();
         auto commandMap = Data::getInstance()->getCommandMap();
         auto it = commandMap.find(this->lexer[index]);
         if (it != commandMap.end()){
@@ -37,6 +38,8 @@ void Parser::parse(){
             Command *assignmentCommand = Data::getInstance()->getCommandMap().find("assign")->second;
             index += assignmentCommand->execute(index, this->lexer);
         }
+        Data::getInstance()->comMapMutex.unlock();
+
     }
     Data::getInstance()->setStop(true);
 }
