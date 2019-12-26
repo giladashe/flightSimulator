@@ -142,9 +142,7 @@ void Data::updateVariables(int index, vector<string> &lexer) {
     // update the variables values on "setVariables" at Interpreter
     while (lexer[i + 1] != "\n") {
         if (regex_match(lexer[i + 1], smatch1, variableRegex)) {
-            this->progMapMutex.lock();
             double value = Data::getInstance()->getValFromProgMap(lexer[i + 1]);
-            this->progMapMutex.unlock();
             string variableSet = lexer[i + 1] + "=" + to_string(value);
             this->getInterpreter()->setVariables(variableSet);
         }
