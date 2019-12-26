@@ -71,6 +71,8 @@ public:
 
     void updateBindSimMap(string key, int bind);
 
+    void setProgStrSimMap(string key, string progStr);
+
 };
 
 

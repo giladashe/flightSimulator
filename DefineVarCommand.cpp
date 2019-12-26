@@ -23,13 +23,15 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
             bindOfVar = 0;
         }
         // create VarData obj and insert to progMap
-        Data::getInstance()->m.lock();
+        auto data = Data::getInstance();
+        data->m.lock();
         auto *varData = new VarData(0, progStr, simStr, bindOfVar);
-        Data::getInstance()->setProgMap(progStr, varData);
+        data->setProgMap(progStr, varData);
         if (bindOfVar == 0) {
-            Data::getInstance()->updateBindSimMap(simStr, 1);
+            data->updateBindSimMap(simStr, 1);
+            data->setProgStrSimMap(simStr, progStr);
         }
-        Data::getInstance()->m.unlock();
+        data->m.unlock();
         return 6;
     }
 

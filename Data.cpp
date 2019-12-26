@@ -146,3 +146,7 @@ unordered_map<string, Command *> &Data::getCommandMap() {
     return this->_commandMap;
 }
 
+void Data::setProgStrSimMap(string key, string progStr) {
+    this->_simMap[key]->setProgStr(progStr);
+}
+
