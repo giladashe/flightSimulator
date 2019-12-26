@@ -22,6 +22,14 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
     bool together = false;
     while (getline(filePointer, line)) {
         line.erase(remove(line.begin(), line.end(), '\t'), line.end());
+        //remove spaces from begin
+        for (int t = 0; t < line.size(); t++) {
+            if (line[t] == ' ') {
+                line = line.substr(1, line.size());
+            } else {
+                break;
+            }
+        }
         string copyOfLine = string(line);
         string big = string(line);
         string small = string(line);
@@ -31,19 +39,20 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
         vector<string> splitLineSmall = Lexer::splitByDelimiter(small, "<");
 
         //if it's a line like: variable = value
-        if (splitLine.size() > 1 && splitLineBig.size() == 1 && splitLineSmall.size() == 1) {
+        //'w' && 'i' are for while and if lines
+        if (splitLine.size() > 1 && splitLineBig.size() == 1 && splitLineSmall.size() == 1 && splitLine[0][0] != 'w'
+            && splitLine[0][0] != 'i') {
             for (int i = 0; i < splitLine.size(); i++) {
-                if(i==0){
-                    while(splitLine[i][0]==' ')
-                    {
-                        splitLine[i] = splitLine[i].substr(1,splitLine[i].size()-1);
+                if (i == 0) {
+                    while (splitLine[i][0] == ' ') {
+                        splitLine[i] = splitLine[i].substr(1, splitLine[i].size() - 1);
                     }
-                    if(splitLine[i][0]=='v'){
+                    if (splitLine[i][0] == 'v') {
                         token = splitLine[i][0];
-                        token+=splitLine[i][1];
-                        token+=splitLine[i][2];
+                        token += splitLine[i][1];
+                        token += splitLine[i][2];
                         arrayOfTokens.push_back(token);
-                        splitLine[i] = splitLine[i].substr(3,splitLine[i].size()-3);
+                        splitLine[i] = splitLine[i].substr(3, splitLine[i].size() - 3);
                     }
                 }
 
@@ -113,13 +122,14 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                     vector<string> paren = splitByDelimiter(inParentheses, ",");
                     arrayOfTokens.insert(arrayOfTokens.end(), paren.begin(), paren.end());
                     i--;
-                } else if (isOperator(line[i])) {
+                } else if (isOperator(line[i]) || line[i] == '!') {
                     token = string(1, line[i]);
 
                     //all possible operators that need to be together: -> , <- , <= , >=
                     if ((line[i] == '-' && line[i + 1] == '>') ||
                         (line[i] == '<' && (line[i + 1] == '-' || line[i + 1] == '='))
-                        || (line[i] == '>' && line[i + 1] == '=')) {
+                        || (line[i] == '>' && line[i + 1] == '=') || (line[i] == '=' && line[i + 1] == '=')
+                        || (line[i] == '!' && line[i + 1] == '=')) {
                         together = true;
                     }
                     if (together) {
@@ -173,8 +183,9 @@ bool Lexer::isOperator(char token) {
     //# is a symbol for UPlus and $ is a symbol for UMinus
     return token == '+' || token == '-' || token == '*' || token == '/' || token == '<' || token == '>' || token == '=';
 }
- string Lexer::convertToString(char *a, int size) {
+
+string Lexer::convertToString(char *a, int size) {
     string s = a;
     return s;
- }
+}
 //
