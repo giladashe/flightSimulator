@@ -2,6 +2,7 @@
 // Created by shaiyis on 12/14/19.
 //
 
+#include <unistd.h>
 #include "Parser.h"
 #include "Command.h"
 #include "Data.h"
@@ -20,6 +21,8 @@ using namespace std;
 void Parser::parse(){
     int index = 0;
     while (index < this->lexer.size()) {
+        // sleep process for 1s
+        sleep(1);
         auto commandMap = Data::getInstance()->getCommandMap();
         auto it = commandMap.find(this->lexer[index]);
         if (it != commandMap.end()){

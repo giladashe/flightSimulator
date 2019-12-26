@@ -31,7 +31,10 @@ class Data {
 
 public:
     const vector<string> &getXmlVariables() const;
-    mutex m;
+    mutex simMapMutex;
+    mutex progMapMutex;
+    mutex queueMutex;
+
     queue<string> commandsQueue;
     static Data *getInstance() {
         if (!instance)

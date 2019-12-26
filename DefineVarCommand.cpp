@@ -24,29 +24,27 @@ int DefineVarCommand::execute(int index, vector<string> &lexer) {
         }
         // create VarData obj and insert to progMap
         auto data = Data::getInstance();
-        data->m.lock();
         auto *varData = new VarData(0, progStr, simStr, bindOfVar);
         data->setProgMap(progStr, varData);
         if (bindOfVar == 0) {
             data->updateBindSimMap(simStr, 1);
             data->setProgStrSimMap(simStr, progStr);
         }
-        data->m.unlock();
+
         return 6;
     }
 
-        // assignment
+    // assignment
     else {
         string progStr = lexer[index + 1];
-        string simStr;
-        int bind = 0;
+        string simStr = "";
         // create VarData obj and insert to progMap
-        auto *varData = new VarData(0, progStr, simStr, bind);
-        Data::getInstance()->m.lock();
+        auto *varData = new VarData(0, progStr, simStr, 0);
+
         Data::getInstance()->setProgMap(progStr, varData);
 
         Command *assignmentCommand = Data::getInstance()->getCommandMap().find("assign")->second;
-        Data::getInstance()->m.unlock();
+
         int toJump = assignmentCommand->execute(index + 1, lexer);
         return toJump + 1;
     }

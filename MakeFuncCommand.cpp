@@ -19,9 +19,9 @@ int MakeFuncCommand::execute(int index, vector<string> &lexer) {
         i++;
     }
     funcCommand->setEndIndex(j);
-    Data::getInstance()->m.lock();
+
     Data::getInstance()->setCommandMap(lexer[index], funcCommand);
-    Data::getInstance()->m.unlock();
+
 
     return i;
 }

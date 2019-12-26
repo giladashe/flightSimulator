@@ -9,10 +9,10 @@ FuncCommand::FuncCommand(const string &variable) : var(variable) {}
 
 int FuncCommand::execute(int index, vector <string> &lexer) {
     //insert local variable to the map and at the end erase it
-    Data::getInstance()->m.lock();
+
     Data::getInstance()->setProgMap(this->var, new VarData(this->_val, "", "", 0));
     this->setVal(stod(lexer[index + 2]));
-    Data::getInstance()->m.unlock();
+
 
     int i = this->_startIndex;
     int j = this->_endIndex;
@@ -31,9 +31,9 @@ int FuncCommand::execute(int index, vector <string> &lexer) {
     for (jump = 0; lexer[index] != "\n"; jump++) {
         index++;
     }
-    Data::getInstance()->m.lock();
+
     Data::getInstance()->removeFromProgMap(this->var);
-    Data::getInstance()->m.unlock();
+
 
     return jump + 1;
 }

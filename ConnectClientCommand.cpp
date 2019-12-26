@@ -43,8 +43,6 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
 
     thread clientTh(clientThread, client_socket);
     clientTh.detach();
-    //clientThread = thread(&ConnectClientCommand::sendMessages, this, client_socket);
-    //clientThread.detach();
     return 4;
 }
 
@@ -65,9 +63,8 @@ void clientThread(int client_socket) {
     auto data = Data::getInstance();
 
     while (!data->isStop()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         //if here we made a connection
-        data->m.lock();
+
         while (!data->commandsQueue.empty()) {
             int is_sent = send(client_socket, data->commandsQueue.front().c_str(),
                                data->commandsQueue.front().length(), 0);
@@ -78,7 +75,6 @@ void clientThread(int client_socket) {
                 data->commandsQueue.pop();
             }
         }
-        data->m.unlock();
-    }
+  }
     close(client_socket);
 }

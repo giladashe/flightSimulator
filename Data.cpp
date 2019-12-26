@@ -16,11 +16,17 @@
 using namespace std;
 
 unordered_map<string, VarData *> &Data::getProgMap() {
-    return this->_progMap;
+    this->progMapMutex.lock();
+    auto progMap = this->_progMap;
+    this->progMapMutex.unlock();
+    return progMap;
 }
 
 unordered_map<string, VarData *> &Data::getSimMap() {
-    return this->_simMap;
+    this->simMapMutex.lock();
+    auto simMap = this->_simMap;
+    this->simMapMutex.unlock();
+    return simMap;
 }
 
 void Data::setSimMap(string key, VarData *varData) {
@@ -115,7 +121,9 @@ void Data::setStop(bool stop) {
 }
 
 void Data::setValueSimMap(string key, double value) {
+    this->simMapMutex.lock();
     this->_simMap[key]->setValue(value);
+    this->simMapMutex.unlock();
 }
 
 void Data::setValueProgMap(string key, double value) {
@@ -142,7 +150,7 @@ const vector<string> &Data::getXmlVariables() const {
     return xmlVariables;
 }
 
-unordered_map<string, Command *> &Data::getCommandMap() {
+unordered_map<string, Command *> &Data::getCommandMap(){
     return this->_commandMap;
 }
 

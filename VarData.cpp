@@ -15,7 +15,7 @@ double VarData::getValue() const {
     return _value;
 }
 
-void VarData::setValue(double value) {
+void VarData::setValue(double value){
     _value = value;
 }
 

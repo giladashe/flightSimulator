@@ -31,8 +31,8 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     double value = data->calculate(varAndVal[1]);
 
     // assign the value as was calculated
-    data->m.lock();
     data->setValueProgMap(varAndVal[0], value);
+
 
     auto prog_map = data->getProgMap();
 
@@ -42,7 +42,6 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
         string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + " \r\n";
         data->commandsQueue.push(message);
     }
-    data->m.unlock();
 
     // calculate steps to the next command in "lexer"
     int toJump = 0;

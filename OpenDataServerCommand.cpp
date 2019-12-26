@@ -72,31 +72,39 @@ void OpenDataServerCommand::setPort(string port) {
 void serverThread(int client_socket) {
     //reading from client
     auto data = Data::getInstance();
-    string remain;
+    string remain; //remain from last read
     char buffer[1187];
     string bufferToString;
     vector<string> valuesLines;
+
     while (!data->isStop()) {
+        // buffer = 0
         int i;
         for (i = 0; i < 1187; i++) {
             buffer[i] = 0;
         }
         int buffer_size = sizeof(buffer) / sizeof(char);
-       // data->m.lock();
+
+        // read
         read(client_socket, buffer, 1187);
+
         if (bufferToString.length() != 0) {
             bufferToString.clear();
         }
+
         bufferToString = Lexer::convertToString(buffer, buffer_size);
+
         if (remain.length() > 0) {
             remain += bufferToString;
             bufferToString = remain;
             remain = "";
         }
 
+        // if there is a remain in valueLines - clear
         if (!valuesLines.empty()) {
             valuesLines.clear();
         }
+
         valuesLines = Lexer::splitByDelimiter(bufferToString, "\n");
         if (valuesLines[valuesLines.size() - 1].empty()) {
             valuesLines.pop_back();
@@ -112,6 +120,7 @@ void serverThread(int client_socket) {
                 remain += justInCase;
                 break;
             }
+            cout << justInCase<<endl;
             int k;
 
             auto simMap = data->getSimMap();
@@ -121,24 +130,24 @@ void serverThread(int client_socket) {
             vector<string> variables = data->getXmlVariables();
 
 
-            data->m.lock();
+
             for (k = 0; k < values.size(); k++) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                //checks if map is empty or if the key isn't in map
-                if (simMap.empty() || simMap.find(variables[k]) == simMap.end()) {
+                // if simMap is empty or if the key isn't in map, insert new VarData to simMap (from buffer)
+                /*if (simMap.empty() || simMap.find(variables[k]) == simMap.end()) {
                     auto var_data = new VarData(stod(values[k]), "", variables[k], 0);
                     data->setSimMap(variables[k], var_data);
-                } else {
-                    data->setValueSimMap(variables[k], stod(values[k]));
-                }
-                //if there is a bind between the maps it updates the value of the var in progMap
+                }*/
+
+                // if the key in simMap, update
+                data->setValueSimMap(variables[k], stod(values[k]));
+
+                //if there is a bind between the maps it updates the value of the varData in progMap
                 if ((simMap[variables[k]]->getBind() == 1) &&
                     (progMap.find(simMap[variables[k]]->getProgStr()) != progMap.end())) {
                     data->setValueProgMap(simMap[variables[k]]->getProgStr(), (stod(values[k])));
                 }
             }
-            data->m.unlock();
-        }
+      }
     }
     close(client_socket);
 }
