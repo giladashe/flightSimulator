@@ -85,8 +85,10 @@ void serverThread(int client_socket) {
         }
         int buffer_size = sizeof(buffer) / sizeof(char);
 
+        cout << "before read"<<endl;
         // read
         read(client_socket, buffer, 1187);
+        cout << "after read"<<endl;
 
         if (bufferToString.length() != 0) {
             bufferToString.clear();

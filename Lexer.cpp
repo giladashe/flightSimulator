@@ -20,6 +20,7 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
     string inParentheses;
     //flag if the operators need to be together like >=
     bool together = false;
+    bool ifOrWhileLine = false;
     while (getline(filePointer, line)) {
         line.erase(remove(line.begin(), line.end(), '\t'), line.end());
         //remove spaces from begin
@@ -40,8 +41,24 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
 
         //if it's a line like: variable = value
         //'w' && 'i' are for while and if lines
-        if (splitLine.size() > 1 && splitLineBig.size() == 1 && splitLineSmall.size() == 1 && splitLine[0][0] != 'w'
-            && splitLine[0][0] != 'i') {
+        token.clear();
+        for (int r = 0;; r++) {
+            token += line[r];
+            if (token.size() == 2 && token == "if") {
+                ifOrWhileLine = true;
+                line = line.substr(3, line.size() - 4);
+                arrayOfTokens.push_back(token);
+                break;
+            } else if (token.size() == 5) {
+                if (token == "while") {
+                    line = line.substr(6, line.size() - 7);
+                    ifOrWhileLine = true;
+                    arrayOfTokens.push_back(token);
+                }
+                break;
+            }
+        }
+        if (splitLine.size() > 1 && splitLineBig.size() == 1 && splitLineSmall.size() == 1 && !ifOrWhileLine) {
             for (int i = 0; i < splitLine.size(); i++) {
                 if (i == 0) {
                     while (splitLine[i][0] == ' ') {
@@ -92,10 +109,25 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                     }
                 }
             }
-        } else {
+        }
+
+            //the rest
+        else {
             for (int i = 0; i < line.length(); i++) {
-                if (line[i] == ' ' || line[i] == ')') {
+                /*
+                //its while or if line
+                if (ifOrWhileLine){
+                    arrayOfTokens.push_back(token);
                     continue;
+                }
+                 */
+                if (line[i] == ' ') {
+                    continue;
+                } else if (line[i] == ')') {
+                    if (!ifOrWhileLine) {
+                        continue;
+                    }
+                    arrayOfTokens.emplace_back(string(1, line[i]));
                 } else if (isalpha(line[i]) || line[i] == '_') {
                     token = string(1, line[i]);
                     i++;
@@ -107,20 +139,37 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                     i--;
                     arrayOfTokens.push_back(token);
                 } else if (line[i] == '(') {
+                    if (ifOrWhileLine) {
+                        arrayOfTokens.emplace_back(string(1, line[i]));
+                        continue;
+                    }
                     i++;
                     inParentheses = string(1, line[i]);
                     i++;
-                    while (i < (int) line.length() && !isParentheses(line[i])) {
+                    while (i<line.length()) {
                         inParentheses += line[i];
                         i++;
                     }
-                    //except of "print" all expressions in () need to be without spaces
-                    if (arrayOfTokens.back() != "Print") {
-                        inParentheses.erase(remove(inParentheses.begin(), inParentheses.end(), ' '),
-                                            inParentheses.end());
-                    }
+                    inParentheses = inParentheses.substr(0,inParentheses.size()-1);
+                    string copyOfInParen = string(inParentheses);
                     vector<string> paren = splitByDelimiter(inParentheses, ",");
-                    arrayOfTokens.insert(arrayOfTokens.end(), paren.begin(), paren.end());
+                    if(paren.size()>1){
+                        inParentheses.erase(remove(copyOfInParen.begin(), copyOfInParen.end(), ' '),
+                                            copyOfInParen.end());
+                        paren = splitByDelimiter(copyOfInParen, ",");
+                        for(const auto& obj:paren){
+                            arrayOfTokens.push_back(obj);
+                        }
+                        break;
+                    }
+                    string copy2OfInParen = string(copyOfInParen);
+                    vector<string> quotationMarks = splitByDelimiter(copyOfInParen, "\"");
+                    //except of "print" all expressions in () need to be without spaces
+                    if (quotationMarks.size()== 1) {
+                        inParentheses.erase(remove(copy2OfInParen.begin(), copy2OfInParen.end(), ' '),
+                                            copy2OfInParen.end());
+                    }
+                    arrayOfTokens.push_back(copy2OfInParen);
                     i--;
                 } else if (isOperator(line[i]) || line[i] == '!') {
                     token = string(1, line[i]);
@@ -151,6 +200,7 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                     arrayOfTokens.push_back(token);
                 }
             }
+            ifOrWhileLine = false;
         }
         arrayOfTokens.emplace_back("\n");
     }

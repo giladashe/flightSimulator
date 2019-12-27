@@ -5,7 +5,6 @@
 #include "AssignmentCommand.h"
 #include "Data.h"
 #include "Lexer.h"
-#include <algorithm>
 
 using namespace std;
 

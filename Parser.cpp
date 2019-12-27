@@ -34,9 +34,6 @@ void Parser::parse(){
             Command *assignmentCommand = (Command*)data->getCommandMap("assign");
             index += assignmentCommand->execute(index, this->lexer);
         }
-
-
     }
-    Data::getInstance()->setStop(true);
+    data->setStop(true);
 }
-//
