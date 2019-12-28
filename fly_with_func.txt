@@ -65,7 +65,7 @@ while alt<330{
         Print("goooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
         Sleep(250)
 }
-takeoff(600)
+takeoff(600+h0/(800-alt))
 something(var ytrter) {
    Print(ytrter)
    while alt < ytrter {

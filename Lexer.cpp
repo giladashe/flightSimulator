@@ -225,6 +225,7 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
             }
             ifOrWhileLine = false;
             isFunction = false;
+            hadThisFunction = false;
         }
         _arrayOfTokens.emplace_back("\n");
     }
