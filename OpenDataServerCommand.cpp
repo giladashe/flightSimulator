@@ -85,10 +85,8 @@ void serverThread(int client_socket) {
         }
         int buffer_size = sizeof(buffer) / sizeof(char);
 
-        cout << "before read"<<endl;
         // read
         read(client_socket, buffer, 1187);
-        cout << "after read"<<endl;
 
         if (bufferToString.length() != 0) {
             bufferToString.clear();
@@ -139,6 +137,10 @@ void serverThread(int client_socket) {
 
                 // if the key in simMap, update
 
+                if(values[k].empty()){
+                    cerr<<"something happend in opendata.."<<endl;
+                    exit(1);
+                }
 
                 data->setValueSimMap(variables[k], stod(values[k]));
 

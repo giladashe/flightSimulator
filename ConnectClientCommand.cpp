@@ -71,7 +71,8 @@ void clientThread(int client_socket) {
             if (is_sent == -1) {
                 std::cout << "Error sending message" << std::endl;
             } else {
-                std::cout << "message sent to server" << std::endl;
+                //todo erase?
+                //std::cout << "message sent to server" << std::endl;
                 data->commandsQueue.pop();
             }
         }

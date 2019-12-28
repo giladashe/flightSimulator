@@ -9,17 +9,19 @@
 using namespace std;
 
 vector<string> Lexer::lexer(ifstream &filePointer) {
-    vector<string> arrayOfTokens = {};
     if (!filePointer.is_open()) {
-        cout << "Error opening file" << endl;
-        return arrayOfTokens;
+        cerr << "Error opening file" << endl;
+        exit(1);
     }
     string line;
     string token;
     string inParentheses;
+    vector<string> functions;
     //flag if the operators need to be together like >=
     bool together = false;
     bool ifOrWhileLine = false;
+    bool hadThisFunction = false;
+    bool isFunction = false;
     while (getline(filePointer, line)) {
         line.erase(remove(line.begin(), line.end(), '\t'), line.end());
         //remove spaces from begin
@@ -45,22 +47,47 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
         //if it's a line like: variable = value
         //'w' && 'i' are for while and if lines
         token.clear();
-        for (int r = 0;; r++) {
-            token += line[r];
-            if (token.size() == 2 && token == "if") {
-                ifOrWhileLine = true;
-                line = line.substr(3, line.size() - 3);
-                arrayOfTokens.push_back(token);
+        for (int r = 0; r < line.length(); r++) {
+            if (isOperator(line[r]) || line[r] == '!') {
                 break;
+            }
+            if (line[r] == '(') {
+                token.erase(remove(token.begin(), token.end(), ' '), token.end());
+                if (token != "if" && token != "while" && token != "Print" && token != "Sleep"
+                    && token != "openDataServer" && token != "connectControlClient") {
+                    for (const auto& function:functions) {
+                        if (function == token) {
+                            hadThisFunction = true;
+                            break;
+                        }
+                    }
+                    if(!hadThisFunction) {
+                        isFunction = true;
+                        functions.push_back(token);
+                    }
+                }
+                break;
+            }
+            token += line[r];
+            if (token.size() == 2) {
+                if (token == "if") {
+                    ifOrWhileLine = true;
+                    line = line.substr(3, line.size() - 3);
+                    _arrayOfTokens.push_back(token);
+                    break;
+                }
             } else if (token.size() == 5) {
                 if (token == "while") {
                     line = line.substr(6, line.size() - 6);
                     ifOrWhileLine = true;
-                    arrayOfTokens.push_back(token);
+                    _arrayOfTokens.push_back(token);
+                    break;
+                } else if (token == "Print" || token == "Sleep") {
+                    break;
                 }
-                break;
             }
         }
+
         if (splitLine.size() > 1 && splitLineBig.size() == 1 && splitLineSmall.size() == 1 && !ifOrWhileLine) {
             for (int i = 0; i < splitLine.size(); i++) {
                 if (i == 0) {
@@ -71,7 +98,7 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                         token = splitLine[i][0];
                         token += splitLine[i][1];
                         token += splitLine[i][2];
-                        arrayOfTokens.push_back(token);
+                        _arrayOfTokens.push_back(token);
                         splitLine[i] = splitLine[i].substr(3, splitLine[i].size() - 3);
                     }
                 }
@@ -80,12 +107,12 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                 splitLine[i].erase(remove(splitLine[i].begin(), splitLine[i].end(), ' '), splitLine[i].end());
                 //if it's the variable name
                 if (i == 0) {
-                    arrayOfTokens.push_back(splitLine[i]);
-                    arrayOfTokens.emplace_back("=");
+                    _arrayOfTokens.push_back(splitLine[i]);
+                    _arrayOfTokens.emplace_back("=");
                 } else {
                     for (int j = 0; j < splitLine[i].size(); j++) {
                         if (isParentheses(splitLine[i][j]) || isOperator(splitLine[i][j])) {
-                            arrayOfTokens.emplace_back(string(1, splitLine[i][j]));
+                            _arrayOfTokens.emplace_back(string(1, splitLine[i][j]));
                             continue;
                             //it's a variable or a command
                         } else if (isalpha(splitLine[i][j]) || splitLine[i][j] == '_') {
@@ -108,7 +135,7 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                             }
                             j--;
                         }
-                        arrayOfTokens.push_back(token);
+                        _arrayOfTokens.push_back(token);
                     }
                 }
             }
@@ -120,10 +147,10 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                 if (line[i] == ' ') {
                     continue;
                 } else if (line[i] == ')') {
-                    if (!ifOrWhileLine) {
+                    if (!ifOrWhileLine && !isFunction) {
                         continue;
                     }
-                    arrayOfTokens.emplace_back(string(1, line[i]));
+                    _arrayOfTokens.emplace_back(string(1, line[i]));
                 } else if (isalpha(line[i]) || line[i] == '_') {
                     token = string(1, line[i]);
                     i++;
@@ -133,10 +160,10 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                         i++;
                     }
                     i--;
-                    arrayOfTokens.push_back(token);
+                    _arrayOfTokens.push_back(token);
                 } else if (line[i] == '(') {
-                    if (ifOrWhileLine) {
-                        arrayOfTokens.emplace_back(string(1, line[i]));
+                    if (ifOrWhileLine || isFunction) {
+                        _arrayOfTokens.emplace_back(string(1, line[i]));
                         continue;
                     }
                     i++;
@@ -154,7 +181,7 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                                             copyOfInParen.end());
                         paren = splitByDelimiter(copyOfInParen, ",");
                         for (const auto &obj:paren) {
-                            arrayOfTokens.push_back(obj);
+                            _arrayOfTokens.push_back(obj);
                         }
                         break;
                     }
@@ -165,7 +192,7 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                         inParentheses.erase(remove(copy2OfInParen.begin(), copy2OfInParen.end(), ' '),
                                             copy2OfInParen.end());
                     }
-                    arrayOfTokens.push_back(copy2OfInParen);
+                    _arrayOfTokens.push_back(copy2OfInParen);
                     i--;
                 } else if (isOperator(line[i]) || line[i] == '!') {
                     token = string(1, line[i]);
@@ -182,9 +209,9 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                         i++;
                         together = false;
                     }
-                    arrayOfTokens.push_back(token);
+                    _arrayOfTokens.push_back(token);
                 } else if (line[i] == '{' || line[i] == '}') {
-                    arrayOfTokens.emplace_back(string(1, line[i]));
+                    _arrayOfTokens.emplace_back(string(1, line[i]));
                 } else { //it's a number
                     token = string(1, line[i]);
                     i++;
@@ -193,17 +220,15 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                         i++;
                     }
                     i--;
-                    arrayOfTokens.push_back(token);
+                    _arrayOfTokens.push_back(token);
                 }
             }
             ifOrWhileLine = false;
+            isFunction = false;
         }
-        arrayOfTokens.emplace_back("\n");
+        _arrayOfTokens.emplace_back("\n");
     }
-
-    filePointer.close();
-
-    return arrayOfTokens;
+    return _arrayOfTokens;
 }
 
 //split a string by delimiter

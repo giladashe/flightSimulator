@@ -242,7 +242,10 @@ void Interpreter::setVariables(string s) {
             }
         }
 
-
+        if(((*i).substr((*i).find(delimiter2) + 1)).empty()){
+            cerr<<"something happend in ex1.."<<endl;
+            exit(1);
+        }
         double value = stod((*i).substr((*i).find(delimiter2) + 1, string::npos));
         for (Variable *ve: this->variablesVector) {
             if (ve->getName().compare(name) == 0) {

@@ -27,6 +27,7 @@ void Parser::parse(){
             index += command1->execute(index, this->lexer);
         } else if (lexer[index + 1] == "("){
             //function definition
+            //todo command1?
             Command *makeFuncCommand = new MakeFuncCommand();
             index += makeFuncCommand->execute(index, this->lexer);
         } else {

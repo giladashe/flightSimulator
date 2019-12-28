@@ -162,15 +162,14 @@ void Data::updateVariablesFromStr(string string1) {
     int i;
     string toUpdate;
     for (i = 0; i < string1.length(); i++) {
-        if (string1[i] != ' ' && !Lexer::isParentheses(string1[i]) && !isdigit(string1[i]) && string1[i] != '.' &&
-            !Lexer::isOperator(string1[i])) {
+        if (isalpha(string1[i]) || string1[i] == '_' || (!toUpdate.empty() && isdigit(string1[i]))) {
             toUpdate += string1[i];
             if (i == string1.length() - 1) {
                 Data::setVarsInInterpreter(toUpdate);
             }
         } else if (!toUpdate.empty()) {
-                Data::setVarsInInterpreter(toUpdate);
-                toUpdate.clear();
+            Data::setVarsInInterpreter(toUpdate);
+            toUpdate.clear();
         }
     }
 }
@@ -240,10 +239,11 @@ const vector<string> &Data::getXmlVariables() const {
 
 void *Data::getCommandMap(string key) {
     this->comMapMutex.lock();
-    auto command = this->_commandMap[key];
     if (this->_commandMap.find(key) == this->_commandMap.end()) {
+        this->comMapMutex.unlock();
         return nullptr;
     }
+    auto command = this->_commandMap[key];
     this->comMapMutex.unlock();
 
     return command; //todo ?
