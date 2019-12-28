@@ -48,6 +48,7 @@ var h0 = heading
 breaks = 0
 throttle = 1
 
+
 if alt+(heading/2) < 1000 {
 	rudder = (h0 - heading)/80
 	aileron = -roll / 70

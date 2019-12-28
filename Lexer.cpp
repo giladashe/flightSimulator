@@ -26,12 +26,12 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
         //todo check
         for (int t = 0; t < line.size(); t++) {
             if (line[t] == ' ') {
-                line = line.substr(1, line.size()-1);
+                line = line.substr(1, line.size() - 1);
             } else {
                 break;
             }
         }
-        if(line.empty()){
+        if (line.empty()) {
             continue;
         }
         string copyOfLine = string(line);
@@ -117,13 +117,6 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
             //the rest
         else {
             for (int i = 0; i < line.length(); i++) {
-                /*
-                //its while or if line
-                if (ifOrWhileLine){
-                    arrayOfTokens.push_back(token);
-                    continue;
-                }
-                 */
                 if (line[i] == ' ') {
                     continue;
                 } else if (line[i] == ')') {
@@ -149,18 +142,18 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                     i++;
                     inParentheses = string(1, line[i]);
                     i++;
-                    while (i<line.length()) {
+                    while (i < line.length()) {
                         inParentheses += line[i];
                         i++;
                     }
-                    inParentheses = inParentheses.substr(0,inParentheses.size()-1);
+                    inParentheses = inParentheses.substr(0, inParentheses.size() - 1);
                     string copyOfInParen = string(inParentheses);
                     vector<string> paren = splitByDelimiter(inParentheses, ",");
-                    if(paren.size()>1){
+                    if (paren.size() > 1) {
                         inParentheses.erase(remove(copyOfInParen.begin(), copyOfInParen.end(), ' '),
                                             copyOfInParen.end());
                         paren = splitByDelimiter(copyOfInParen, ",");
-                        for(const auto& obj:paren){
+                        for (const auto &obj:paren) {
                             arrayOfTokens.push_back(obj);
                         }
                         break;
@@ -168,7 +161,7 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
                     string copy2OfInParen = string(copyOfInParen);
                     vector<string> quotationMarks = splitByDelimiter(copyOfInParen, "\"");
                     //except of "print" all expressions in () need to be without spaces
-                    if (quotationMarks.size()== 1) {
+                    if (quotationMarks.size() == 1) {
                         inParentheses.erase(remove(copy2OfInParen.begin(), copy2OfInParen.end(), ' '),
                                             copy2OfInParen.end());
                     }
