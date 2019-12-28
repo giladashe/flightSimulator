@@ -88,6 +88,10 @@ public:
     int getBindFromSimMap(string key);
 
     string getProgFromSimMap(string key);
+
+    static void updateVariablesFromStr(string string1);
+
+    static void setVarsInInterpreter(string toUpdate);
 };
 
 

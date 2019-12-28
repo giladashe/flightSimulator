@@ -11,7 +11,9 @@
 #include "IfCommand.h"
 #include "LoopCommand.h"
 #include "AssignmentCommand.h"
+#include "Lexer.h"
 #include <regex>
+#include <iostream>
 
 using namespace std;
 
@@ -153,6 +155,41 @@ void Data::updateVariables(int index, vector<string> &lexer) {
 
 Data *Data::instance = 0;
 
+void Data::updateVariablesFromStr(string string1) {
+
+    regex variableRegex("[a-z|A-Z|_]+[a-z|A-Z|_|0-9]*");
+    smatch smatch1;
+    int i;
+    string toUpdate;
+    for (i = 0; i < string1.length(); i++) {
+        if (string1[i] != ' ' && !Lexer::isParentheses(string1[i]) && !isdigit(string1[i]) && string1[i] != '.' &&
+            !Lexer::isOperator(string1[i])) {
+            toUpdate += string1[i];
+            if (i == string1.length() - 1) {
+                Data::setVarsInInterpreter(toUpdate);
+            }
+        } else if (!toUpdate.empty()) {
+                Data::setVarsInInterpreter(toUpdate);
+                toUpdate.clear();
+        }
+    }
+}
+
+void Data::setVarsInInterpreter(string toUpdate) {
+    auto data = Data::getInstance();
+    double value;
+    regex variableRegex("[a-z|A-Z|_]+[a-z|A-Z|_|0-9]*");
+    smatch smatch1;
+    if (regex_match(toUpdate, smatch1, variableRegex)) {
+        value = data->getValFromProgMap(toUpdate);
+        data->getInterpreter()->setVariables(toUpdate + "=" + to_string(value));
+    } else {
+        cerr << "not valid variable" << endl;
+        exit(1);
+    }
+}
+
+
 bool Data::isStop() const {
     return _stop;
 }
@@ -201,7 +238,7 @@ const vector<string> &Data::getXmlVariables() const {
     return xmlVariables;
 }
 
-void * Data::getCommandMap(string key) {
+void *Data::getCommandMap(string key) {
     this->comMapMutex.lock();
     auto command = this->_commandMap[key];
     if (this->_commandMap.find(key) == this->_commandMap.end()) {

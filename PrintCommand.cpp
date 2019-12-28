@@ -15,7 +15,10 @@ int PrintCommand::execute(int index, vector <string> &lexer) {
     if (theMessageWithout.size() > 1) {
         message = theMessageWithout[1];
     } else {
-        double value = Data::getInstance()->getValFromProgMap(message);
+        auto data = Data::getInstance();
+        Data::updateVariablesFromStr(message);
+        Expression* e = data->getInterpreter()->interpret(message);
+        double value = e->calculate();
         message = to_string(value);
     }
     cout << message << endl;

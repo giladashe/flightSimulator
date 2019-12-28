@@ -24,9 +24,10 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
     while (getline(filePointer, line)) {
         line.erase(remove(line.begin(), line.end(), '\t'), line.end());
         //remove spaces from begin
+        //todo check
         for (int t = 0; t < line.size(); t++) {
             if (line[t] == ' ') {
-                line = line.substr(1, line.size());
+                line = line.substr(1, line.size()-1);
             } else {
                 break;
             }
@@ -46,12 +47,12 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
             token += line[r];
             if (token.size() == 2 && token == "if") {
                 ifOrWhileLine = true;
-                line = line.substr(3, line.size() - 4);
+                line = line.substr(3, line.size() - 3);
                 arrayOfTokens.push_back(token);
                 break;
             } else if (token.size() == 5) {
                 if (token == "while") {
-                    line = line.substr(6, line.size() - 7);
+                    line = line.substr(6, line.size() - 6);
                     ifOrWhileLine = true;
                     arrayOfTokens.push_back(token);
                 }

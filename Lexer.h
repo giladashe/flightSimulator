@@ -13,9 +13,9 @@ public:
     vector<string> lexer(ifstream & filePointer);
     static vector<string> splitByDelimiter(string &s, const string & delimiter);
 
-    bool isParentheses(char token);
+    static bool isParentheses(char token);
 
-    bool isOperator(char token);
+    static bool isOperator(char token);
 
     static string convertToString(char* a, int size);
 };
