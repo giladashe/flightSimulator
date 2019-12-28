@@ -9,7 +9,6 @@
 using namespace std;
 
 vector<string> Lexer::lexer(ifstream &filePointer) {
-    int count = 0;
     vector<string> arrayOfTokens = {};
     if (!filePointer.is_open()) {
         cout << "Error opening file" << endl;
@@ -31,6 +30,9 @@ vector<string> Lexer::lexer(ifstream &filePointer) {
             } else {
                 break;
             }
+        }
+        if(line.empty()){
+            continue;
         }
         string copyOfLine = string(line);
         string big = string(line);
@@ -239,4 +241,3 @@ string Lexer::convertToString(char *a, int size) {
     string s = a;
     return s;
 }
-//

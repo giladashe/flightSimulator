@@ -14,7 +14,7 @@ int IfCommand::execute(int index, vector <string> &lexer) {
     int stepOutOfTheScope;
     stepOutOfTheScope = this->stepOutOfTheScope(index, lexer);
     auto data = Data::getInstance();
-    if ((bool) this->checkCondition(index, lexer)) {
+    if (this->checkCondition(index, lexer)) {
         while (lexer[i] != "}") {
             Command *command = (Command*)data->getCommandMap(lexer[i]);
             if (command != nullptr) {
