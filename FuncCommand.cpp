@@ -11,11 +11,14 @@ FuncCommand::FuncCommand(const string &variable) : var(variable) {}
 int FuncCommand::execute(int index, vector <string> &lexer) {
     //insert local variable to the map and at the end erase it
     auto data = Data::getInstance();
-    if((lexer[index + 2]).empty()){
+    if((lexer[index + 1]).empty()){
         cerr<<"something happend in func.."<<endl;
         exit(1);
     }
-    data->setProgMap(this->var, new VarData(stod(lexer[index + 2]), "", "", 0));
+    Data::updateVariablesFromStr(lexer[index+1]);
+    Expression* e = data->getInterpreter()->interpret(lexer[index+1]);
+    double value = e->calculate();
+    data->setProgMap(this->var, new VarData(value, "", "", 0));
     //this->setVal(stod(lexer[index + 2]));
     //todo complex expression
 
@@ -39,7 +42,7 @@ int FuncCommand::execute(int index, vector <string> &lexer) {
     data->removeFromProgMap(this->var);
 
 
-    return jump + 1;
+    return jump+1;
 }
 
 int FuncCommand::getStartIndex() const {
