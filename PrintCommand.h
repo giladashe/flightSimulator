@@ -9,7 +9,7 @@
 #include "Command.h"
 
 class PrintCommand : public Command {
-    string str;
+    string _str;
 public:
     PrintCommand(const string &str);
 

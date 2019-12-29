@@ -8,7 +8,7 @@
 #include "Expression.h"
 #include "Data.h"
 
-SleepCommand::SleepCommand(const string &str) : str(str) {}
+SleepCommand::SleepCommand(const string &str) : _str(str) {}
 
 int SleepCommand::execute(int index, vector <string> &lexer) {
     auto data = Data::getInstance();

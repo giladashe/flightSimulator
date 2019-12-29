@@ -85,6 +85,7 @@ double Condition::calculate() {
     } else if (this->_op == "<") {
         return left_val < right_val;
     }
+    return 0;
 }
 
 
@@ -183,10 +184,10 @@ double Value::calculate() {
 
 
 Interpreter::~Interpreter() {
-    for (auto & variable : this->variablesVector) {
+    for (auto &variable : this->variablesVector) {
         delete variable;
     }
-    while(!this->expStack.empty()){
+    while (!this->expStack.empty()) {
         delete this->expStack.top();
         this->expStack.pop();
     }
@@ -245,22 +246,22 @@ void Interpreter::setVariables(string s) {
                 throw "Invalid variable value";
             }
         }
+        double value = 0;
+        string sVal = (*i).substr((*i).find(delimiter2) + 1);
+        if (!sVal.empty()) {
+            value = stod(sVal);
 
-        if(((*i).substr((*i).find(delimiter2) + 1)).empty()){
-            cerr<<"something happend in ex1.."<<endl;
-            exit(1);
-        }
-        double value = stod((*i).substr((*i).find(delimiter2) + 1, string::npos));
-        for (Variable *ve: this->variablesVector) {
-            if (ve->getName().compare(name) == 0) {
-                ve->setValue(value);
-                k = 1;
-                break;
+            for (Variable *ve: this->variablesVector) {
+                if (ve->getName().compare(name) == 0) {
+                    ve->setValue(value);
+                    k = 1;
+                    break;
+                }
             }
-        }
-        if (k == 0) {
-            Variable *variable = new Variable(name, value);
-            this->variablesVector.push_back(variable);
+            if (k == 0) {
+                Variable *variable = new Variable(name, value);
+                this->variablesVector.push_back(variable);
+            }
         }
     }
 }
@@ -351,7 +352,7 @@ Expression *Interpreter::interpret(const string str) {
     return expression;
 }
 
-bool Interpreter::isValidNumber(const string& s) {
+bool Interpreter::isValidNumber(const string &s) {
     regex numberRegex("[0-9]+\\.?[0-9]*");
     smatch smatch1;
     string parO("(");
@@ -365,7 +366,7 @@ bool Interpreter::isValidNumber(const string& s) {
     return regex_match(s, smatch1, numberRegex);
 }
 
-bool Interpreter::isValidVariable(const string& s) {
+bool Interpreter::isValidVariable(const string &s) {
     regex variableRegex("[a-z|A-Z|_]+[a-z|A-Z|_|0-9]*");
     smatch smatch1;
     string parO("(");
@@ -576,9 +577,11 @@ void Interpreter::numbersToStack() {
                                          (this->queueSYA.front().compare(uMinus) != 0) &&
                                          (this->queueSYA.front().compare(mult) != 0) &&
                                          (this->queueSYA.front().compare(div) != 0))) {
-        Expression *v = new Value(stod(this->queueSYA.front()));
-        this->expStack.push(v);
-        this->queueSYA.pop();
+        if(!this->queueSYA.front().empty()) {
+            Expression *v = new Value(stod(this->queueSYA.front()));
+            this->expStack.push(v);
+            this->queueSYA.pop();
+        }
     }
 }
 

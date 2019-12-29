@@ -45,17 +45,6 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     return 4;
 }
 
-void ConnectClientCommand::setPort(string port) {
-    this->_port = port;
-}
-
-void ConnectClientCommand::sendMessages(int clientSocket) {
-}
-
-void ConnectClientCommand::setIp(const string &ip) {
-    _ip = ip;
-}
-
 void clientThread(int client_socket) {
     //create socket
 

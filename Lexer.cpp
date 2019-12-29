@@ -26,9 +26,9 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
         line.erase(remove(line.begin(), line.end(), '\t'), line.end());
         //remove spaces from begin
         //todo check
-        for (int t = 0; t < line.size(); t++) {
+        for (int t = 0; t < (int)line.length(); t++) {
             if (line[t] == ' ') {
-                line = line.substr(1, line.size() - 1);
+                line = line.substr(1, line.length() - 1);
             } else {
                 break;
             }
@@ -47,7 +47,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
         //if it's a line like: variable = value
         //'w' && 'i' are for while and if lines
         token.clear();
-        for (int r = 0; r < line.length(); r++) {
+        for (int r = 0; r < (int)line.length(); r++) {
             if (isOperator(line[r]) || line[r] == '!') {
                 break;
             }
@@ -69,16 +69,16 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
                 break;
             }
             token += line[r];
-            if (token.size() == 2) {
+            if (token.length() == 2) {
                 if (token == "if") {
                     ifOrWhileLine = true;
-                    line = line.substr(3, line.size() - 3);
+                    line = line.substr(3, line.length() - 3);
                     _arrayOfTokens.push_back(token);
                     break;
                 }
-            } else if (token.size() == 5) {
+            } else if (token.length() == 5) {
                 if (token == "while") {
-                    line = line.substr(6, line.size() - 6);
+                    line = line.substr(6, line.length() - 6);
                     ifOrWhileLine = true;
                     _arrayOfTokens.push_back(token);
                     break;
@@ -89,17 +89,17 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
         }
 
         if (splitLine.size() > 1 && splitLineBig.size() == 1 && splitLineSmall.size() == 1 && !ifOrWhileLine) {
-            for (int i = 0; i < splitLine.size(); i++) {
+            for (int i = 0; i < (int)splitLine.size(); i++) {
                 if (i == 0) {
                     while (splitLine[i][0] == ' ') {
-                        splitLine[i] = splitLine[i].substr(1, splitLine[i].size() - 1);
+                        splitLine[i] = splitLine[i].substr(1, splitLine[i].length() - 1);
                     }
                     if (splitLine[i][0] == 'v') {
                         token = splitLine[i][0];
                         token += splitLine[i][1];
                         token += splitLine[i][2];
                         _arrayOfTokens.push_back(token);
-                        splitLine[i] = splitLine[i].substr(3, splitLine[i].size() - 3);
+                        splitLine[i] = splitLine[i].substr(3, splitLine[i].length() - 3);
                     }
                 }
 
@@ -110,7 +110,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
                     _arrayOfTokens.push_back(splitLine[i]);
                     _arrayOfTokens.emplace_back("=");
                 } else {
-                    for (int j = 0; j < splitLine[i].size(); j++) {
+                    for (int j = 0; j < (int)splitLine[i].length(); j++) {
                         if (isParentheses(splitLine[i][j]) || isOperator(splitLine[i][j])) {
                             _arrayOfTokens.emplace_back(string(1, splitLine[i][j]));
                             continue;
@@ -143,7 +143,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
 
             //the rest
         else {
-            for (int i = 0; i < line.length(); i++) {
+            for (int i = 0; i < (int)line.length(); i++) {
                 if (line[i] == ' ') {
                     continue;
                 } else if (line[i] == ')') {
@@ -169,11 +169,11 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
                     i++;
                     inParentheses = string(1, line[i]);
                     i++;
-                    while (i < line.length()) {
+                    while (i < (int)line.length()) {
                         inParentheses += line[i];
                         i++;
                     }
-                    inParentheses = inParentheses.substr(0, inParentheses.size() - 1);
+                    inParentheses = inParentheses.substr(0, inParentheses.length() - 1);
                     string copyOfInParen = string(inParentheses);
                     vector<string> paren = splitByDelimiter(inParentheses, ",");
                     if (paren.size() > 1) {
@@ -254,9 +254,4 @@ bool Lexer::isParentheses(char token) {
 bool Lexer::isOperator(char token) {
     //# is a symbol for UPlus and $ is a symbol for UMinus
     return token == '+' || token == '-' || token == '*' || token == '/' || token == '<' || token == '>' || token == '=';
-}
-
-string Lexer::convertToString(char *a, int size) {
-    string s = a;
-    return s;
 }

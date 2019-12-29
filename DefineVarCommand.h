@@ -9,8 +9,8 @@
 #include "Command.h"
 
 class DefineVarCommand : public Command {
-    string var;
-    string value;
+    string _var;
+    string _value;
 public:
     DefineVarCommand(const string &var, const string &value);
 

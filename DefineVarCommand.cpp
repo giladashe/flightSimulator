@@ -6,7 +6,7 @@
 #include "Data.h"
 #include <algorithm>
 
-DefineVarCommand::DefineVarCommand(const string &var, const string &value) : var(var), value(value) {}
+DefineVarCommand::DefineVarCommand(const string &var, const string &value) : _var(var), _value(value) {}
 
 int DefineVarCommand::execute(int index, vector<string> &lexer) {
     auto data = Data::getInstance();

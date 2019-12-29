@@ -7,7 +7,7 @@
 #include "Lexer.h"
 #include "Data.h"
 
-PrintCommand::PrintCommand(const string &str) : str(str) {}
+PrintCommand::PrintCommand(const string &str) : _str(str) {}
 
 int PrintCommand::execute(int index, vector <string> &lexer) {
     string message = string(lexer[index + 1]);

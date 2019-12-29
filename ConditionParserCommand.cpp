@@ -9,11 +9,8 @@
 
 using namespace std;
 
-ConditionParserCommand::ConditionParserCommand(const string &leftStr, const string &rightStr) : leftStr(leftStr),
-                                                                                                rightStr(rightStr) {}
-
-int ConditionParserCommand::execute(int index, vector<string> &lexer) {}
-
+ConditionParserCommand::ConditionParserCommand(const string &leftStr, const string &rightStr) : _leftStr(leftStr),
+                                                                                                _rightStr(rightStr) {}
 
 bool ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
     Data::getInstance()->updateVariables(index, lexer);
@@ -27,7 +24,7 @@ bool ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
     }
     string op = lexer[i];
 
-    // finds leftStr & rightStr of the condition
+    // finds _leftStr & _rightStr of the condition
     int j = index;
     string sidesStr;
     while (lexer[j + 1] != "{") {
@@ -35,11 +32,11 @@ bool ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
         j++;
     }
     vector<string> sidesVector = Lexer::splitByDelimiter(sidesStr, op);
-    this->leftStr = sidesVector[0];
-    this->rightStr = sidesVector[1];
+    this->_leftStr = sidesVector[0];
+    this->_rightStr = sidesVector[1];
 
-    double leftStrVal = Data::getInstance()->calculate(this->leftStr);
-    double rightStrVal = Data::getInstance()->calculate(this->rightStr);
+    double leftStrVal = Data::getInstance()->calculate(this->_leftStr);
+    double rightStrVal = Data::getInstance()->calculate(this->_rightStr);
     Expression *left = new Value(leftStrVal);
     Expression *right = new Value(rightStrVal);
     Expression *e = new Condition(left, right, op);

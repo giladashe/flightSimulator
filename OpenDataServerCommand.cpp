@@ -72,7 +72,7 @@ void serverThread(int client_socket) {
     //reading from client
     auto data = Data::getInstance();
     string remain; //remain from last read
-    char buffer[1187]={0};
+    char buffer[1187] = {0};
     string bufferToString;
     vector<string> valuesLines;
 
@@ -110,7 +110,7 @@ void serverThread(int client_socket) {
 
         // for on the lines
         int j = 0;
-        for (; j < valuesLines.size(); j++) {
+        for (; j < (int) valuesLines.size(); j++) {
             string justInCase = valuesLines[j];
             vector<string> values = Lexer::splitByDelimiter(valuesLines[j], ",");
             // put all the values on the side for next iteration
@@ -118,30 +118,25 @@ void serverThread(int client_socket) {
                 remain += justInCase;
                 break;
             }
-            //cout << justInCase<<endl;
             int k;
 
             // variables is xmlVariables
             vector<string> variables = data->getXmlVariables();
 
 
-
-            for (k = 0; k < values.size(); k++) {
+            for (k = 0; k < (int) values.size(); k++) {
                 //update the key in simMap
 
-                if(values[k].empty()){
-                    cerr<<"something happend in opendata.."<<endl;
-                    exit(1);
-                }
-
-                data->setValueSimMap(variables[k], stod(values[k]));
-
-                //if there is a bind between the maps it updates the value of the varData in progMap
-                if ((data->getBindFromSimMap(variables[k]) == 1)) {
-                    data->setValueProgMap(data->getProgFromSimMap(variables[k]), (stod(values[k])));
+                string s = values[k];
+                if (!s.empty()) {
+                    data->setValueSimMap(variables[k], stod(s));
+                    //if there is a bind between the maps it updates the value of the varData in progMap
+                    if ((data->getBindFromSimMap(variables[k]) == 1)) {
+                        data->setValueProgMap(data->getProgFromSimMap(variables[k]), (stod(s)));
+                    }
                 }
             }
-      }
+        }
     }
     close(client_socket);
 }

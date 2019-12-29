@@ -19,9 +19,7 @@ class Command {
 public:
     virtual ~Command() {}
 
-    virtual int execute(int index, vector<string> &lexer);
+    virtual int execute(int index, vector<string> &lexer)=0;
 };
-
-//
 
 #endif //FLIGHTSIMULATOR_COMMAND_H

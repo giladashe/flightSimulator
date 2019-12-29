@@ -17,11 +17,6 @@ public:
 
     int execute(int index, vector<string> &lexer);
 
-    void sendMessages(int clientSocket);
-
-    void setPort(string port);
-
-    void setIp(const string &ip);
 };
 
 void clientThread(int client_socket);

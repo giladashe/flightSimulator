@@ -9,7 +9,7 @@
 #include "Command.h"
 
 class SleepCommand : public Command {
-    string str;
+    string _str;
 public:
     SleepCommand(const string &str);
 

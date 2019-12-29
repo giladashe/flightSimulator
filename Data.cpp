@@ -150,10 +150,10 @@ void Data::updateVariablesFromStr(string string1) {
     smatch smatch1;
     int i;
     string toUpdate;
-    for (i = 0; i < string1.length(); i++) {
+    for (i = 0; i < (int)string1.length(); i++) {
         if (isalpha(string1[i]) || string1[i] == '_' || (!toUpdate.empty() && isdigit(string1[i]))) {
             toUpdate += string1[i];
-            if (i == string1.length() - 1) {
+            if (i == (int)string1.length() - 1) {
                 Data::setVarsInInterpreter(toUpdate);
             }
         } else if (!toUpdate.empty()) {

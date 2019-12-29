@@ -13,12 +13,12 @@ using namespace std;
 // different from Condition (extends BinaryOperator)
 class ConditionParserCommand : public Command {
 protected:
-    string leftStr;
-    string rightStr;
+    string _leftStr;
+    string _rightStr;
 public:
     ConditionParserCommand(const string &leftStr, const string &rightStr);
 
-    int execute(int index, vector<string> &lexer);
+    int execute(int index, vector<string> &lexer)=0;
 
     bool checkCondition(int index, vector<string> &lexer);
 
