@@ -11,6 +11,7 @@ int MakeFuncCommand::execute(int index, vector<string> &lexer) {
     int i = 0;
     i = 3;
     int j = index;
+    //make function command and put it in the command map - variable is in position j+3
     auto *funcCommand = new FuncCommand(lexer[j + 3]);
     i += 4;
     j += i;
@@ -31,7 +32,6 @@ int MakeFuncCommand::execute(int index, vector<string> &lexer) {
     }
     funcCommand->setEndIndex(j);
     Data::getInstance()->setCommandMap(lexer[index], funcCommand);
-
 
     return i+2;
 }

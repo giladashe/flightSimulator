@@ -11,6 +11,7 @@
 class MakeFuncCommand : public Command {
 
 public:
+    //make a function command and put it in command map
     int execute(int index, vector<string> &lexer);
 };
 

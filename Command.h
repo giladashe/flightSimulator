@@ -7,10 +7,6 @@
 
 #include <string>
 #include <vector>
-//#include <thread>
-//#include <netinet/in.h>
-//#include <algorithm>
-//#include "ex1.h"
 
 using namespace std;
 

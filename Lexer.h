@@ -14,15 +14,14 @@ class Lexer {
 public:
     vector<string> _arrayOfTokens;
 
-    vector<string> makeTokensArray(ifstream &filePointer);
+    vector<string> makeTokensArray(ifstream &filePointer); //make array of tokens from a text file
 
-    static vector<string> splitByDelimiter(string &s, const string &delimiter);
+    static vector<string> splitByDelimiter(string &s, const string &delimiter); //split string by a delimiter
 
-    static bool isParentheses(char token);
+    static bool isParentheses(char token); //checks if char it's '(' or ')'
 
-    static bool isOperator(char token);
+    static bool isOperator(char token); //checks if char is an operator
 
-    static string convertToString(char *a, int size);
 };
 
 //

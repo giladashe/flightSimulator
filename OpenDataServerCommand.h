@@ -13,9 +13,9 @@ class OpenDataServerCommand : public Command {
 public:
     OpenDataServerCommand(const string &port);
 
+    //takes values from the simulator (simulator becomes server)
     int execute(int index, vector<string> &lexer);
 
-    void setPort(string port);
 };
 
 void serverThread(int client_socket);

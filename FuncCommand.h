@@ -17,9 +17,9 @@ public:
 
     int execute(int index, vector<string> &lexer);
 
-    void setStartIndex(int startIndex);
+    void setStartIndex(int startIndex); //index of the first command
 
-    void setEndIndex(int endIndex);
+    void setEndIndex(int endIndex); //index of the end of last command
 
 };
 

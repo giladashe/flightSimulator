@@ -13,6 +13,7 @@ class SleepCommand : public Command {
 public:
     SleepCommand(const string &str);
 
+    //make the main thread sleep for x milliseconds
     int execute(int index, vector<string> &lexer);
 };
 

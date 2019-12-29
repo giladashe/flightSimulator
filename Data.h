@@ -14,87 +14,80 @@
 #include "ex1.h"
 #include "Command.h"
 
-// singleton Data  so all the program has access
+// singleton Data so all the program has access and it's constructed once
 
 
 using namespace std;
 
 class Data {
     Data(); // private constructor
-    unordered_map<string, VarData *> _progMap;
-    unordered_map<string, VarData *> _simMap;
-    unordered_map<string, Command *> _commandMap;
+    unordered_map<string, VarData *> _progMap; //map for the program variables
+    unordered_map<string, VarData *> _simMap; //map for the simulator variables
+    unordered_map<string, Command *> _commandMap; //map for the commands that the program can perform
     static Data *instance;
     Interpreter *interpreter;
-    bool _stop = false;
-    vector<string> xmlVariables;
+    bool _stop = false; //boolean to stop the threads
+    vector<string> _xmlVariables; //list of the variables from the xml file
 
 public:
 
     virtual ~Data();
 
     const vector<string> &getXmlVariables() const;
+    //mutex for every map and queue
     mutex simMapMutex;
     mutex progMapMutex;
     mutex queueMutex;
     mutex comMapMutex;
 
-    queue<string> commandsQueue;
+    queue<string> commandsQueue; //queue for the set commands for the simulator
+    //get an instance for data - singleton
     static Data *getInstance() {
         if (!instance)
             instance = new Data();
         return instance;
     }
 
-   // unordered_map<string, VarData *> &getProgMap();
-
-   // unordered_map<string, VarData *> &getSimMap();
-
-    void * getCommandMap(string key);
+    void * getCommandMap(const string& key);
 
     Interpreter *getInterpreter();
 
     bool isStop() const;
 
-    // searches for variables in the current line and update in "setVariables"
-    // of Interpreter
+    // searches for variables in the current line of lexer and update in "setVariables" of Interpreter
     void updateVariables(int index, vector<string> &lexer);
 
-    double calculate(string s);
+    double calculate(const string& s); //calculate string representing expression with the interpreter
 
     void setStop(bool stop);
 
-    void setSimMap(string key, VarData *varData);
+    void setValueSimMap(const string& key, double value); //update value of specified key in simulator map
 
-    void setValueSimMap(string key, double value);
+    void setValueProgMap(const string& key, double value); //update value of specified key in program map
 
-    void setValueProgMap(string key, double value);
+    void setCommandMap(const string &key, Command *varData); //insert new command
 
-    void setCommandMap(const string &key, Command *varData);
+    void setProgMap(const string& key, VarData *varData); //insert new variable to program map
 
-    void setProgMap(string key, VarData *varData);
+    void removeFromProgMap(const string& key); //remove variable from program map
 
-    void removeFromProgMap(string key);
+    void updateBindSimMap(const string& key, int bind); //update bind of specified key in program map
 
-    void updateBindSimMap(string key, int bind);
+    void setProgStrSimMap(const string& key, const string& progStr);//update program string in simulator map
 
-    void setProgStrSimMap(string key, string progStr);
+    double getValFromProgMap(const string& key); //get value from the program map
 
-    double getValFromProgMap(string key);
+    string getSimFromProgMap(const string& key); //get simulator path from program map
 
-    double getValFromSimMap(string key);
+    int getBindFromProgMap(const string& key); //get bind - 1 for bind to simulator and 0 otherwise
 
-    string getSimFromProgMap(string key);
+    int getBindFromSimMap(const string& key); //get bind - 1 for bind to program map and 0 otherwise
 
-    int getBindFromProgMap(string key);
+    string getProgFromSimMap(const string& key); //get program string from simulator map
 
-    int getBindFromSimMap(string key);
+    static void updateVariablesFromStr(string string1); //updates variables in interpreter from a complex string
 
-    string getProgFromSimMap(string key);
-
-    static void updateVariablesFromStr(string string1);
-
-    static void setVarsInInterpreter(string toUpdate);
+    static void setVarsInInterpreter(const string& toUpdate); //set variables in interpreter
 };
 
 

@@ -11,20 +11,18 @@ FuncCommand::FuncCommand(const string &variable) : var(variable),_startIndex(0),
 int FuncCommand::execute(int index, vector <string> &lexer) {
     //insert local variable to the map and at the end erase it
     auto data = Data::getInstance();
-    if((lexer[index + 1]).empty()){
-        cerr<<"something happend in func.."<<endl;
-        exit(1);
-    }
     Data::updateVariablesFromStr(lexer[index+1]);
     Expression* e = data->getInterpreter()->interpret(lexer[index+1]);
     double value = e->calculate();
+    //put the variable in the program map with the value as was interpreted
     data->setProgMap(this->var, new VarData(value, "", "", 0));
 
     int i = this->_startIndex;
     int j = this->_endIndex;
     int jump = 0;
     while (i < j) {
-        Command* command1 = (Command*)data->getCommandMap(lexer[i]);
+        //do all the commands of the functions
+        auto* command1 = (Command*)data->getCommandMap(lexer[i]);
         if (command1 != nullptr) {
             i += command1->execute(i, lexer);
         } else {
@@ -36,7 +34,7 @@ int FuncCommand::execute(int index, vector <string> &lexer) {
     for (jump = 0; lexer[index] != "\n"; jump++) {
         index++;
     }
-
+    //remove the variable from the program map
     data->removeFromProgMap(this->var);
 
     return jump+1;

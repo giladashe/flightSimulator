@@ -13,6 +13,7 @@ class PrintCommand : public Command {
 public:
     PrintCommand(const string &str);
 
+    //prints an expression or string to the console
     int execute(int index, vector<string> &lexer);
 
 };

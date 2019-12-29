@@ -16,6 +16,7 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     string ip = lexer[index + 1];
     ip.erase(remove(ip.begin(), ip.end(), '"'), ip.end());
     string portStr = lexer[index + 2];
+    //calculate the expression in the port
     double port = Data::getInstance()->getInterpreter()->interpret(portStr)->calculate();
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (client_socket == -1) {
@@ -27,6 +28,8 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     //We need to create a sockaddr obj to hold address of server
     sockaddr_in address{}; //in means IP4
     address.sin_family = AF_INET;//IP4
+    //we need to convert our number (both port & localhost)
+    // to a number that the network understands.
     address.sin_addr.s_addr = inet_addr(ip.c_str());  //the localhost address
     address.sin_port = htons(port);
     // Requesting a connection with the server on local host with port 8081
@@ -37,11 +40,12 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
         exit(1);
     }
     std::cout << "Client is now connected to server" << std::endl;
-    //we need to convert our number (both port & localhost)
-    // to a number that the network understands.
 
+    //make a thread that runs the loop for sending messages to the simulator
     thread clientTh(clientThread, client_socket);
+    //let the thread be independently running
     clientTh.detach();
+    //return how much further to go in the lexer tokens array
     return 4;
 }
 
