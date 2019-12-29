@@ -258,6 +258,8 @@ void Interpreter::setVariables(string s) {
                     break;
                 }
             }
+
+            // the variable is not in the variablesVector so we need to create it
             if (k == 0) {
                 Variable *variable = new Variable(name, value);
                 this->variablesVector.push_back(variable);

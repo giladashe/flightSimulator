@@ -8,6 +8,7 @@
 
 #include "Command.h"
 
+// this class is defining the variables and inserts it to progMap and (or) simMap
 class DefineVarCommand : public Command {
     string _var;
     string _value;

@@ -20,10 +20,13 @@ public:
 
     int execute(int index, vector<string> &lexer)=0;
 
+    // checks if the condition is true or false
     bool checkCondition(int index, vector<string> &lexer);
 
+    // calculates steps to the first command
     int stepsToFirstCommand(int index, vector<string> &lexer);
 
+    // calculates steps out of the scope
     int stepOutOfTheScope(int index, vector<string> &lexer);
 };
 

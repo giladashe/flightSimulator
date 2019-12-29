@@ -21,13 +21,16 @@ using namespace std;
 void Parser::parse(){
     int index = 0;
     auto data = Data::getInstance();
+
+    // while we aren't at the end of the file
     while (index < (int)this->lexer.size()) {
+
+        // getting commands from the maps
         Command* command1 = (Command*)data->getCommandMap(this->lexer[index]);
         if (command1 != nullptr){
             index += command1->execute(index, this->lexer);
         } else if (lexer[index + 1] == "("){
             //function definition
-            //todo command1?
             command1 = new MakeFuncCommand();
             index += command1->execute(index, this->lexer);
             delete command1;

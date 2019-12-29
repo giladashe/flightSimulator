@@ -15,6 +15,7 @@ class Command {
 public:
     virtual ~Command() {}
 
+    // pure virtual execute so the other commands classes will have to implement
     virtual int execute(int index, vector<string> &lexer)=0;
 };
 

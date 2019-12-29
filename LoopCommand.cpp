@@ -10,11 +10,17 @@ LoopCommand::LoopCommand(const string &leftStr, const string &rightStr) : Condit
 int LoopCommand::execute(int index, vector <string> &lexer) {
     int stepsToFirstCommand;
     stepsToFirstCommand = this->stepsToFirstCommand(index, lexer);
+    // i is the index of the first command
     int i = index + stepsToFirstCommand;
+
+    // steps out of the scope
     int stepOutOfTheScope;
     stepOutOfTheScope = this->stepOutOfTheScope(index, lexer);
     auto data = Data::getInstance();
+
+    // checks the condition
     while (this->checkCondition(index, lexer)) {
+        // while we aren't in the end of the scope, make commands
         while (lexer[i] != "}") {
             Command *command = (Command *)data->getCommandMap(lexer[i]);
             if (command != nullptr) {
@@ -26,6 +32,7 @@ int LoopCommand::execute(int index, vector <string> &lexer) {
                 i += assignmentCommand->execute(i, lexer);
             }
         }
+        // return to first command
         i = index + stepsToFirstCommand;
     }
     return stepOutOfTheScope;

@@ -131,12 +131,19 @@ class Interpreter{
 
 public:
     ~Interpreter();
+    // setting the values of variables
     void setVariables(string s) ;
+    //from string queue and stack to expression stack
     Expression* interpret(string s);
+    // replace Uplus and Uminus by #,%
     string replaceUnary (string s);
+    // shuntingYard algorithm
     void shuntingYard (string s);
+    // puts the numbers on stack
     void numbersToStack();
+    // checks if valid number
     bool isValidNumber(const string& s);
+    // checks if valid variable name
     bool isValidVariable(const string& s);
     };
 
