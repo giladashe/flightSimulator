@@ -10,7 +10,6 @@
 
 class FuncCommand : public Command {
     string var;
-    double _val;
     int _startIndex;
     int _endIndex;
 public:
@@ -18,17 +17,9 @@ public:
 
     int execute(int index, vector<string> &lexer);
 
-    int getStartIndex() const;
-
-    int getEndIndex() const;
-
     void setStartIndex(int startIndex);
 
     void setEndIndex(int endIndex);
-
-    void setVal(double val);
-
-    const string &getVar() const;
 
 };
 

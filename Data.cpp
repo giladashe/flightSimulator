@@ -17,11 +17,6 @@
 
 using namespace std;
 
-/*
-unordered_map<string, VarData *> &Data::getProgMap() {
-    return this->_progMap;
-}
-*/
 double Data::getValFromProgMap(string key) {
     this->progMapMutex.lock();
     auto value = this->_progMap[key]->getValue();
@@ -29,12 +24,6 @@ double Data::getValFromProgMap(string key) {
     return value;
 }
 
-//todo erase?
-/*
-unordered_map<string, VarData *> &Data::getSimMap() {
-    return this->_simMap;
-}
-*/
 double Data::getValFromSimMap(string key) {
     this->simMapMutex.lock();
     double value = this->_simMap[key]->getValue();
@@ -253,5 +242,20 @@ void Data::setProgStrSimMap(string key, string progStr) {
     this->simMapMutex.lock();
     this->_simMap[key]->setProgStr(progStr);
     this->simMapMutex.unlock();
+}
+
+Data::~Data() {
+    //delete all commands
+    for (const auto &command:this->_commandMap) {
+        delete command.second;
+    }
+    delete this->interpreter;
+    //delete all var data
+    for (const auto &sim:this->_simMap) {
+        delete sim.second;
+    }
+    for (const auto &prog:this->_progMap) {
+        delete prog.second;
+    }
 }
 

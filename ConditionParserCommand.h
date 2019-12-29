@@ -15,13 +15,10 @@ class ConditionParserCommand : public Command {
 protected:
     string leftStr;
     string rightStr;
-    list<Command> commandList;
 public:
     ConditionParserCommand(const string &leftStr, const string &rightStr);
 
     int execute(int index, vector<string> &lexer);
-
-    const list<Command> &getCommandList() const;
 
     bool checkCondition(int index, vector<string> &lexer);
 

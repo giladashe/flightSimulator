@@ -6,7 +6,7 @@
 #include "FuncCommand.h"
 #include "Data.h"
 
-FuncCommand::FuncCommand(const string &variable) : var(variable) {}
+FuncCommand::FuncCommand(const string &variable) : var(variable),_startIndex(0),_endIndex(0) {}
 
 int FuncCommand::execute(int index, vector <string> &lexer) {
     //insert local variable to the map and at the end erase it
@@ -19,8 +19,6 @@ int FuncCommand::execute(int index, vector <string> &lexer) {
     Expression* e = data->getInterpreter()->interpret(lexer[index+1]);
     double value = e->calculate();
     data->setProgMap(this->var, new VarData(value, "", "", 0));
-    //this->setVal(stod(lexer[index + 2]));
-    //todo complex expression
 
     int i = this->_startIndex;
     int j = this->_endIndex;
@@ -41,16 +39,7 @@ int FuncCommand::execute(int index, vector <string> &lexer) {
 
     data->removeFromProgMap(this->var);
 
-
     return jump+1;
-}
-
-int FuncCommand::getStartIndex() const {
-    return _startIndex;
-}
-
-int FuncCommand::getEndIndex() const {
-    return _endIndex;
 }
 
 void FuncCommand::setStartIndex(int startIndex) {
@@ -59,12 +48,4 @@ void FuncCommand::setStartIndex(int startIndex) {
 
 void FuncCommand::setEndIndex(int endIndex) {
     this->_endIndex = endIndex;
-}
-
-const string &FuncCommand::getVar() const {
-    return this->var;
-}
-
-void FuncCommand::setVal(double val) {
-    this->_val = val;
 }

@@ -14,7 +14,6 @@ ConnectClientCommand::ConnectClientCommand(const string &ip, const string &port)
 
 int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     string ip = lexer[index + 1];
-    //setIp(lexer[index + 1]);
     ip.erase(remove(ip.begin(), ip.end(), '"'), ip.end());
     string portStr = lexer[index + 2];
     double port = Data::getInstance()->getInterpreter()->interpret(portStr)->calculate();

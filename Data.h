@@ -30,6 +30,9 @@ class Data {
     vector<string> xmlVariables;
 
 public:
+
+    virtual ~Data();
+
     const vector<string> &getXmlVariables() const;
     mutex simMapMutex;
     mutex progMapMutex;

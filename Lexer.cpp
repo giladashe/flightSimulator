@@ -8,7 +8,7 @@
 
 using namespace std;
 
-vector<string> Lexer::lexer(ifstream &filePointer) {
+vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
     if (!filePointer.is_open()) {
         cerr << "Error opening file" << endl;
         exit(1);

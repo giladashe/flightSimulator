@@ -3,6 +3,7 @@
 #include "Lexer.h"
 #include "VarData.h"
 #include "Parser.h"
+#include "Data.h"
 
 
 using namespace std;
@@ -19,10 +20,11 @@ int main(int argc, char *argv[]) {
         cerr << "Error opening file" << endl;
         exit(1);
     }
-    vector<string> arrayOfTokens = lexer.lexer(filePointer);
+    vector<string> arrayOfTokens = lexer.makeTokensArray(filePointer);
     filePointer.close();
     Parser parser(arrayOfTokens);
     parser.parse();
+    delete Data::getInstance();
 
     return 0;
 }

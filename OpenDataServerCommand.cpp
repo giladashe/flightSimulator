@@ -13,7 +13,6 @@
 OpenDataServerCommand::OpenDataServerCommand(const string &port) : _port(port) {}
 
 int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
-    //setPort(lexer[index + 1]);
     // check if expression
     double port = Data::getInstance()->getInterpreter()->interpret(lexer[index + 1])->calculate();
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -73,7 +72,7 @@ void serverThread(int client_socket) {
     //reading from client
     auto data = Data::getInstance();
     string remain; //remain from last read
-    char buffer[1187];
+    char buffer[1187]={0};
     string bufferToString;
     vector<string> valuesLines;
 
@@ -83,7 +82,6 @@ void serverThread(int client_socket) {
         for (i = 0; i < 1187; i++) {
             buffer[i] = 0;
         }
-        int buffer_size = sizeof(buffer) / sizeof(char);
 
         // read
         read(client_socket, buffer, 1187);
@@ -92,7 +90,7 @@ void serverThread(int client_socket) {
             bufferToString.clear();
         }
 
-        bufferToString = Lexer::convertToString(buffer, buffer_size);
+        bufferToString = buffer;
 
         if (remain.length() > 0) {
             remain += bufferToString;
@@ -129,13 +127,7 @@ void serverThread(int client_socket) {
 
 
             for (k = 0; k < values.size(); k++) {
-                // if simMap is empty or if the key isn't in map, insert new VarData to simMap (from buffer)
-                /*if (simMap.empty() || simMap.find(variables[k]) == simMap.end()) {
-                    auto var_data = new VarData(stod(values[k]), "", variables[k], 0);
-                    data->setSimMap(variables[k], var_data);
-                }*/
-
-                // if the key in simMap, update
+                //update the key in simMap
 
                 if(values[k].empty()){
                     cerr<<"something happend in opendata.."<<endl;

@@ -14,9 +14,6 @@ ConditionParserCommand::ConditionParserCommand(const string &leftStr, const stri
 
 int ConditionParserCommand::execute(int index, vector<string> &lexer) {}
 
-const list<Command> &ConditionParserCommand::getCommandList() const {
-    return this->commandList;
-}
 
 bool ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
     Data::getInstance()->updateVariables(index, lexer);
@@ -47,6 +44,7 @@ bool ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
     Expression *right = new Value(rightStrVal);
     Expression *e = new Condition(left, right, op);
     bool result = (bool) (e->calculate());
+    delete e;
     return result;
 }
 

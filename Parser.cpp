@@ -28,8 +28,9 @@ void Parser::parse(){
         } else if (lexer[index + 1] == "("){
             //function definition
             //todo command1?
-            Command *makeFuncCommand = new MakeFuncCommand();
-            index += makeFuncCommand->execute(index, this->lexer);
+            command1 = new MakeFuncCommand();
+            index += command1->execute(index, this->lexer);
+            delete command1;
         } else {
             // assignmentCommand
             Command *assignmentCommand = (Command*)data->getCommandMap("assign");

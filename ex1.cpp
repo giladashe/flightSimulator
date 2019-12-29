@@ -183,8 +183,12 @@ double Value::calculate() {
 
 
 Interpreter::~Interpreter() {
-    for (auto i = this->variablesVector.begin(); i != this->variablesVector.end(); ++i) {
-        delete *i;
+    for (auto & variable : this->variablesVector) {
+        delete variable;
+    }
+    while(!this->expStack.empty()){
+        delete this->expStack.top();
+        this->expStack.pop();
     }
 }
 

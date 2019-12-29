@@ -14,7 +14,7 @@ class Lexer {
 public:
     vector<string> _arrayOfTokens;
 
-    vector<string> lexer(ifstream &filePointer);
+    vector<string> makeTokensArray(ifstream &filePointer);
 
     static vector<string> splitByDelimiter(string &s, const string &delimiter);
 
