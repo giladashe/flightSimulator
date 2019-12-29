@@ -270,7 +270,7 @@ void Interpreter::setVariables(string s) {
 
 
 //from string queue and stack to expression stack
-Expression *Interpreter::interpret(const string str) {
+Expression *Interpreter::interpret(const string& str) {
 
     // if the string contains ++/--/**/ //
 

@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         cerr << "File Name Not Provided" << endl;
         exit(1);
     }
-    filePointer.open(argv[1], std::ifstream::in);
+    filePointer.open(argv[1], ifstream::in);
     if(!filePointer.is_open()){
         cerr << "Error opening file" << endl;
         exit(1);

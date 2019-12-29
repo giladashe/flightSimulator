@@ -29,4 +29,4 @@ We used [Github](https://github.com/giladashe/flightSimulator) for version contr
 
 **Authors**
 
-Gilad Asher and Yisrael Shai.
+Israel Shai and Gilad Asher.

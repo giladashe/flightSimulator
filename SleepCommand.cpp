@@ -17,6 +17,6 @@ int SleepCommand::execute(int index, vector <string> &lexer) {
     Expression* e = data->getInterpreter()->interpret(lexer[index + 1]);
     double howMuchSleep = e->calculate();
     //sleep for some X milliseconds
-    std::this_thread::sleep_for(std::chrono::milliseconds(stol(to_string(howMuchSleep))));
+    this_thread::sleep_for(chrono::milliseconds(stol(to_string(howMuchSleep))));
     return 3;
 }

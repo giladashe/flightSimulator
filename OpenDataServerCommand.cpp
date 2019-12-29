@@ -14,11 +14,20 @@ OpenDataServerCommand::OpenDataServerCommand(const string &port) : _port(port) {
 
 int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
     // checks if expression and calculates it
-    double port = Data::getInstance()->getInterpreter()->interpret(lexer[index + 1])->calculate();
+    Expression *expression = nullptr;
+    try {
+        expression = Data::getInstance()->getInterpreter()->interpret(lexer[index + 1]);
+    } catch (exception &e) {
+        cerr << "port is invalid" << endl;
+        exit(1);
+    }
+    double port = expression->calculate();
+    delete expression;
+
     int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     if (socketfd == -1) {
         //error
-        std::cerr << "Could not create a socket" << std::endl;
+        cerr << "Could not create a socket" << endl;
         exit(1);
     }
 
@@ -30,16 +39,16 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
 
     //the actual bind command
     if (bind(socketfd, (struct sockaddr *) &address, sizeof(address)) == -1) {
-        std::cerr << "Could not bind the socket to an IP" << std::endl;
+        cerr << "Could not bind the socket to an IP" << endl;
         exit(1);
     }
 
     //making socket listen to the port
     if (listen(socketfd, 5) == -1) { //can also set to SOMAXCON (max connections)
-        std::cerr << "Error during listening command" << std::endl;
+        cerr << "Error during listening command" << endl;
         exit(1);
     } else {
-        std::cout << "Server is now listening ..." << std::endl;
+        cout << "Server is now listening ..." << endl;
     }
 
     // accepting a client
@@ -47,7 +56,7 @@ int OpenDataServerCommand::execute(int index, vector<string> &lexer) {
                                (socklen_t *) &address);
 
     if (client_socket == -1) {
-        std::cerr << "Error accepting client" << std::endl;
+        cerr << "Error accepting client" << endl;
         exit(1);
     }
 

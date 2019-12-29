@@ -13,15 +13,21 @@
 ConnectClientCommand::ConnectClientCommand(const string &ip, const string &port) : _ip(ip), _port(port) {}
 
 int ConnectClientCommand::execute(int index, vector<string> &lexer) {
+    Expression *expression = nullptr;
+    try {
+        expression = Data::getInstance()->getInterpreter()->interpret(lexer[index + 2]);
+    } catch (exception &e) {
+        cerr << "port is invalid" << endl;
+        exit(1);
+    }
     string ip = lexer[index + 1];
     ip.erase(remove(ip.begin(), ip.end(), '"'), ip.end());
-    string portStr = lexer[index + 2];
     //calculate the expression in the port
-    double port = Data::getInstance()->getInterpreter()->interpret(portStr)->calculate();
+    double port = expression->calculate();
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (client_socket == -1) {
         //error
-        std::cerr << "Could not create a socket" << std::endl;
+        cerr << "Could not create a socket" << endl;
         exit(1);
     }
 
@@ -36,10 +42,10 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     int is_connect = 0;
     is_connect = connect(client_socket, (struct sockaddr *) &address, sizeof(address));
     if (is_connect == -1) {
-        std::cerr << "Could not connect" << std::endl;
+        cerr << "Could not connect" << endl;
         exit(1);
     }
-    std::cout << "Client is now connected to server" << std::endl;
+    cout << "Client is now connected to server" << endl;
 
     //make a thread that runs the loop for sending messages to the simulator
     thread clientTh(clientThread, client_socket);
@@ -61,10 +67,8 @@ void clientThread(int client_socket) {
             int is_sent = send(client_socket, data->commandsQueue.front().c_str(),
                                data->commandsQueue.front().length(), 0);
             if (is_sent == -1) {
-                std::cout << "Error sending message" << std::endl;
+                cout << "Error sending message" << endl;
             } else {
-                //todo erase?
-                //std::cout << "message sent to server" << std::endl;
                 data->commandsQueue.pop();
             }
         }

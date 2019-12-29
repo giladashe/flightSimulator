@@ -134,7 +134,7 @@ public:
     // setting the values of variables
     void setVariables(string s) ;
     //from string queue and stack to expression stack
-    Expression* interpret(string s);
+    Expression* interpret(const string& s);
     // replace Uplus and Uminus by #,%
     string replaceUnary (string s);
     // shuntingYard algorithm
