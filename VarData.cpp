@@ -27,8 +27,6 @@ const string &VarData::getSimStr() const {
     return _simStr;
 }
 
-
-
 void VarData::setProgStr(const string &progStr) {
     _progStr = progStr;
 }

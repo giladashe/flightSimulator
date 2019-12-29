@@ -9,11 +9,13 @@
 
 using namespace std;
 
+// constructor
 class AssignmentCommand : public Command {
     string _var;
 public:
     AssignmentCommand(const string &var);
 
+    // execute
     int execute(int index, vector<string> &lexer);
 };
 

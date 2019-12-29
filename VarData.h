@@ -9,7 +9,7 @@
 using namespace std;
 
 
-
+// this the the object class that we insert to progMap and simMap
 class VarData {
     double _value;
     string _progStr, _simStr;

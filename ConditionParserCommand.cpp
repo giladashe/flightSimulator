@@ -13,6 +13,7 @@ ConditionParserCommand::ConditionParserCommand(const string &leftStr, const stri
                                                                                                 _rightStr(rightStr) {}
 
 bool ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
+    // update the variables values on "setVariables" at Interpreter
     Data::getInstance()->updateVariables(index, lexer);
 
     // find the operator
@@ -31,10 +32,13 @@ bool ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
         sidesStr += lexer[j + 1];
         j++;
     }
+
+    // split by the operator
     vector<string> sidesVector = Lexer::splitByDelimiter(sidesStr, op);
     this->_leftStr = sidesVector[0];
     this->_rightStr = sidesVector[1];
 
+    // calculating both sides
     double leftStrVal = Data::getInstance()->calculate(this->_leftStr);
     double rightStrVal = Data::getInstance()->calculate(this->_rightStr);
     Expression *left = new Value(leftStrVal);
@@ -45,6 +49,7 @@ bool ConditionParserCommand::checkCondition(int index, vector<string> &lexer) {
     return result;
 }
 
+// calculates steps to the first command
 int ConditionParserCommand::stepsToFirstCommand(int index, vector<string> &lexer) {
     int i = index;
     int steps = 0;
@@ -55,6 +60,7 @@ int ConditionParserCommand::stepsToFirstCommand(int index, vector<string> &lexer
     return steps + 1;
 }
 
+// calculates steps out of the scope
 int ConditionParserCommand::stepOutOfTheScope(int index, vector<string> &lexer) {
     int i = index;
     int steps = 0;

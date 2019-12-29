@@ -15,6 +15,7 @@ using namespace std;
 
 
 class Parser {
+    // the vector that have been created from fly.txt
     vector<string> lexer;
 public:
     Parser(vector<string>& lex);
