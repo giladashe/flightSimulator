@@ -21,7 +21,7 @@ Then you'll need to press fly on the simulator and after 2 minutes the flight wi
 
 **Built With**
 
-Clion - Ide by JetBrains
+Clion - IDE by JetBrains
 
 **Versioning**
 
