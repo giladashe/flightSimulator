@@ -9,10 +9,10 @@
 using namespace std;
 
 vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
-        if (!filePointer.is_open()) {
-            cerr << "Error opening file" << endl;
-            exit(1);
-        }
+    if (!filePointer.is_open()) {
+        cerr << "Error opening file" << endl;
+        exit(1);
+    }
     string line;
     string token;
     string inParentheses;
@@ -22,11 +22,12 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
     bool ifOrWhileLine = false;
     bool hadThisFunction = false;
     bool isFunction = false;
+    bool isPrintOrSleep = false;
     while (getline(filePointer, line)) {
         //remove tabs from all the line
         line.erase(remove(line.begin(), line.end(), '\t'), line.end());
         //remove spaces from begin
-        for (int t = 0; t < (int)line.length(); t++) {
+        for (int t = 0; t < (int) line.length(); t++) {
             if (line[t] == ' ') {
                 line = line.substr(1, line.length() - 1);
             } else {
@@ -46,7 +47,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
 
         token.clear();
         //checks if line is a Function declaration/if line/while line
-        for (int r = 0; r < (int)line.length(); r++) {
+        for (int r = 0; r < (int) line.length(); r++) {
             if (isOperator(line[r]) || line[r] == '!') {
                 break;
             }
@@ -55,14 +56,14 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
                 if (token != "if" && token != "while" && token != "Print" && token != "Sleep"
                     && token != "openDataServer" && token != "connectControlClient") {
                     //if the function is already declared than you proceed as usual
-                    for (const auto& function:functions) {
+                    for (const auto &function:functions) {
                         if (function == token) {
                             hadThisFunction = true;
                             break;
                         }
                     }
                     //it's a function declaration
-                    if(!hadThisFunction) {
+                    if (!hadThisFunction) {
                         isFunction = true;
                         functions.push_back(token);
                     }
@@ -87,6 +88,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
                     break;
                     //if it's print or sleep you proceed as usual
                 } else if (token == "Print" || token == "Sleep") {
+                    isPrintOrSleep = true;
                     break;
                 }
             }
@@ -94,8 +96,9 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
 
 
         //if it's a line like: variable = value
-        if (splitLine.size() > 1 && splitLineBig.size() == 1 && splitLineSmall.size() == 1 && !ifOrWhileLine) {
-            for (int i = 0; i < (int)splitLine.size(); i++) {
+        if (splitLine.size() > 1 && splitLineBig.size() == 1 && splitLineSmall.size() == 1 && !ifOrWhileLine &&
+            !isPrintOrSleep) {
+            for (int i = 0; i < (int) splitLine.size(); i++) {
                 if (i == 0) {
                     while (splitLine[i][0] == ' ') {
                         splitLine[i] = splitLine[i].substr(1, splitLine[i].length() - 1);
@@ -118,7 +121,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
                     _arrayOfTokens.emplace_back("=");
                 } else {
                     //go over the complex expression on the right
-                    for (int j = 0; j < (int)splitLine[i].length(); j++) {
+                    for (int j = 0; j < (int) splitLine[i].length(); j++) {
                         if (isParentheses(splitLine[i][j]) || isOperator(splitLine[i][j])) {
                             _arrayOfTokens.emplace_back(string(1, splitLine[i][j]));
                             continue;
@@ -151,7 +154,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
 
             //the rest (print,sleep,if,while,openDataServer,connectControlClient,functions)
         else {
-            for (int i = 0; i < (int)line.length(); i++) {
+            for (int i = 0; i < (int) line.length(); i++) {
                 if (line[i] == ' ') {
                     continue;
                 } else if (line[i] == ')') {
@@ -160,7 +163,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
                         continue;
                     }
                     _arrayOfTokens.emplace_back(string(1, line[i]));
-                    //insert a variable
+                    //insert a variable/function name
                 } else if (isalpha(line[i]) || line[i] == '_') {
                     token = string(1, line[i]);
                     i++;
@@ -180,7 +183,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
                     i++;
                     inParentheses = string(1, line[i]);
                     i++;
-                    while (i < (int)line.length()) {
+                    while (i < (int) line.length()) {
                         inParentheses += line[i];
                         i++;
                     }
@@ -188,24 +191,26 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
                     //you have now what's inside the parenthesis
                     string copyOfInParen = string(inParentheses);
                     //split by ','
-                    vector<string> paren = splitByDelimiter(inParentheses, ",");
-                    //if it's connectcontrol client (has ',')
-                    if (paren.size() > 1) {
-                        inParentheses.erase(remove(copyOfInParen.begin(), copyOfInParen.end(), ' '),
-                                            copyOfInParen.end());
-                        paren = splitByDelimiter(copyOfInParen, ",");
-                        for (const auto &obj:paren) {
-                            _arrayOfTokens.push_back(obj);
+                    if (!isPrintOrSleep) {
+                        vector<string> paren = splitByDelimiter(inParentheses, ",");
+                        //if it's connectcontrol client (has ',')
+                        if (paren.size() > 1) {
+                            copyOfInParen.erase(remove(copyOfInParen.begin(), copyOfInParen.end(), ' '),
+                                                copyOfInParen.end());
+                            paren = splitByDelimiter(copyOfInParen, ",");
+                            for (const auto &obj:paren) {
+                                _arrayOfTokens.push_back(obj);
+                            }
+                            break;
                         }
-                        break;
                     }
                     string copy2OfInParen = string(copyOfInParen);
                     //split by "
                     vector<string> quotationMarks = splitByDelimiter(copyOfInParen, "\"");
                     //except of "print" all expressions in () need to be without spaces
                     if (quotationMarks.size() == 1) {
-                        inParentheses.erase(remove(copy2OfInParen.begin(), copy2OfInParen.end(), ' '),
-                                            copy2OfInParen.end());
+                        copy2OfInParen.erase(remove(copy2OfInParen.begin(), copy2OfInParen.end(), ' '),
+                                             copy2OfInParen.end());
                     }
                     _arrayOfTokens.push_back(copy2OfInParen);
                     i--;
@@ -243,6 +248,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
             ifOrWhileLine = false;
             isFunction = false;
             hadThisFunction = false;
+            isPrintOrSleep = false;
         }
         //put \n to know that it's another line
         _arrayOfTokens.emplace_back("\n");
