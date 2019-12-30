@@ -149,7 +149,6 @@ Expression *Interpreter::interpret(string tokens) {
             parentheses++;
             ops.push(tokens[i]);
             hadOperator = false;
-            put_minus = false;
         } else if (tokens[i] == ')') {
             if (parentheses == 0) {
                 throw "Bad Input";
@@ -163,7 +162,6 @@ Expression *Interpreter::interpret(string tokens) {
             }
             parentheses--;
             hadOperator = false;
-            put_minus = false;
         } else if (isdigit(tokens[i])) {
             string number = string(1, tokens[i]);
             i++;
@@ -177,7 +175,6 @@ Expression *Interpreter::interpret(string tokens) {
             output.push(number);
             i--;
             hadOperator = false;
-            put_minus = false;
         } else if (isOperator(tokens[i])) {
             if (hadOperator) {
                 throw "illegal math expression";
@@ -189,7 +186,6 @@ Expression *Interpreter::interpret(string tokens) {
                 } else if (tokens[i] == '-') {
                     //$ is a symbol for UMinus
                     tokens[i] = '$';
-                    put_minus = true;
                 }
             }
             while (!ops.empty() && precedence(tokens[i]) <= precedence(ops.top()) && ops.top() != '(') {
