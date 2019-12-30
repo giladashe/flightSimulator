@@ -168,7 +168,7 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
                     token = string(1, line[i]);
                     i++;
                     while (i < (int) line.length() && !isParentheses(line[i]) && !isOperator(line[i]) &&
-                           line[i] != ' ') {
+                           line[i] != ' ' && line[i] != '{' && line[i] != '}') {
                         token += line[i];
                         i++;
                     }

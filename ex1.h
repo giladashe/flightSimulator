@@ -10,141 +10,142 @@
 #include <stack>
 #include <vector>
 #include <list>
+#include <unordered_map>
 
 using namespace std;
 
-//BinaryOperator
-//
-class BinaryOperator : public Expression {
-protected:
-    Expression* right;
-    Expression* left;
 
+
+
+
+class UnaryOperator : public Expression {
+protected:
+    Expression *expression;
 public:
-    BinaryOperator (Expression* l, Expression* r);
-    virtual ~BinaryOperator() override ;
+
+    UnaryOperator(Expression *expression1);
+
+    virtual ~UnaryOperator();
 };
 
-//Plus
+class UPlus : public UnaryOperator {
+public:
+    UPlus(Expression *expression1);
+
+public:
+    double calculate() override;
+};
+
+
+class UMinus : public UnaryOperator {
+public:
+    UMinus(Expression *expression);
+
+    double calculate() override;
+};
+
+
+class BinaryOperator : public Expression {
+protected:
+    Expression *left;
+    Expression *right;
+public:
+    BinaryOperator(Expression *leftExp, Expression *rightExp);
+
+    virtual ~BinaryOperator() override;
+
+};
 
 class Plus : public BinaryOperator {
 public:
-    Plus (Expression* l, Expression* r);
-    double calculate();
-};
+    Plus(Expression *leftExp, Expression *rightExp);
 
-//Minus
+
+    double calculate() override;
+};
 
 class Minus : public BinaryOperator {
 public:
-    Minus (Expression* l, Expression* r);
-    double calculate();
+    Minus(Expression *leftExp, Expression *rightExp);
+
+    double calculate() override;
 };
-
-//Mul
-
-class Mul : public BinaryOperator {
-public:
-    Mul (Expression* l, Expression* r);
-    double calculate();
-};
-
-//Div
 
 class Div : public BinaryOperator {
 public:
-    Div (Expression* l, Expression* r);
-    double calculate();
+
+    Div(Expression *leftExp, Expression *rightExp);
+
+    double calculate() override;
+};
+
+class Mul : public BinaryOperator {
+public:
+    Mul(Expression *leftExp, Expression *rightExp);
+
+    double calculate() override;
 };
 
 // Condition
 class Condition : public BinaryOperator {
     string _op;
 public:
-    Condition (Expression* l, Expression* r, string op);
-    double calculate();
+    Condition(Expression *l, Expression *r, string op);
+
+    double calculate() override ;
 };
 
-
-//UnaryOperator
-
-class UnaryOperator : public Expression {
-protected:
-    Expression* expression;
-
-public:
-    UnaryOperator (Expression* e);
-    virtual ~UnaryOperator() override;
-};
-
-//UPlus
-
-class UPlus: public UnaryOperator{
-public:
-    UPlus (Expression* e);
-    double calculate();
-};
-
-//UMinus
-
-class UMinus: public UnaryOperator{
-public:
-    UMinus (Expression* e);
-    double calculate();
-};
-
-class Variable : public Expression{
+class Variable : public Expression {
     string name;
     double value;
 public:
-    const string &getName() const;
-    double getValue() const;
 
-public:
-    Variable (string name, double value);
-    double calculate();
-    Variable& operator++();
-    Variable& operator--();
-    Variable& operator+=(double add);
-    Variable& operator-=(double red);
-    Variable& operator++(int);
-    Variable& operator--(int);
+    Variable(string nameOfVar, double val);
 
-    void setValue(double v);
+    double calculate() override;
+
+    Variable &operator++();
+
+    Variable &operator--();
+
+    Variable &operator+=(double val);
+
+    Variable &operator-=(double val);
+
+    Variable &operator++(int);
+
+    Variable &operator--(int);
+
 };
 
-//Value
-
-class Value : public Expression{
-    double value;
+class Value : public Expression {
+    const double value;
 public:
-    Value(double v);
-    double calculate();
+    Value(double val);
+
+    double calculate() override;
 };
 
-class Interpreter{
-    queue<string> queueSYA;
-    stack<string> stackSYA;
-    stack<Expression*> expStack;
-    vector<Variable*> variablesVector;
-    int inavlid = 0;
-
+class Interpreter {
+    unordered_map<string, string> variables;
 public:
-    ~Interpreter();
-    // setting the values of variables
-    void setVariables(string s) ;
-    //from string queue and stack to expression stack
-    Expression* interpret(const string& s);
-    // replace Uplus and Uminus by #,%
-    string replaceUnary (string s);
-    // shuntingYard algorithm
-    void shuntingYard (string s);
-    // puts the numbers on stack
-    void numbersToStack();
-    // checks if valid number
-    bool isValidNumber(const string& s);
-    // checks if valid variable name
-    bool isValidVariable(const string& s);
-    };
+    Expression *interpret(string tokens);
+
+    int precedence(char op);
+
+    bool isParentheses(char token);
+
+    bool isOperator(char token);
+
+    void setVariables(string varsAndVals);
+
+    Expression *makeExpression(queue<string> output);
+
+    bool isValidVariable(const string &s);
+
+    bool isValidNumber(const string &s);
+
+    list<string> splitByDelimiter(string &s, string delimiter);
+};
 
 #endif //EX1_EX1_H

@@ -21,6 +21,7 @@ int PrintCommand::execute(int index, vector <string> &lexer) {
         Data::updateVariablesFromStr(message);
         Expression* e = data->getInterpreter()->interpret(message);
         double value = e->calculate();
+        delete e;
         message = to_string(value);
     }
     cout << message << endl;

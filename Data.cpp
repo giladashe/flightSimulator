@@ -108,7 +108,10 @@ int Data::getBindFromSimMap(const string &key) {
 
 double Data::calculate(const string &s) {
     //calculate the string representing expression
-    return this->interpreter->interpret(s)->calculate();
+    Expression* expression = this->interpreter->interpret(s);
+    double result = expression->calculate();
+    delete expression;
+    return result;
 }
 
 Interpreter *Data::getInterpreter() {
@@ -118,13 +121,13 @@ Interpreter *Data::getInterpreter() {
 void Data::updateVariables(int index, vector<string> &lexer) {
     regex variableRegex("[a-z|A-Z|_]+[a-z|A-Z|_|0-9]*");
     smatch smatch1;
-    int i = index;
+    int i = index + 1;
 
     // update the variables values on "setVariables" at Interpreter
-    while (lexer[i + 1] != "\n") {
-        if (regex_match(lexer[i + 1], smatch1, variableRegex)) {
-            double value = Data::getInstance()->getValFromProgMap(lexer[i + 1]);
-            string variableSet = lexer[i + 1] + "=" + to_string(value);
+    while (lexer[i] != "\n") {
+        if (regex_match(lexer[i], smatch1, variableRegex)) {
+            double value = Data::getInstance()->getValFromProgMap(lexer[i]);
+            string variableSet = lexer[i] + "=" + to_string(value);
             this->getInterpreter()->setVariables(variableSet);
         }
         i++;

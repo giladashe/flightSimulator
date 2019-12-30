@@ -51,6 +51,7 @@ breaks = 0
 throttle = 1
 takeoff(var x) {
    Print(x)
+   Print("newwwwwwwwwwwwwwwwwwwwwwwwww")
    while alt < x {
 	rudder = (h0 - heading)/80
 	aileron = -roll / 70
@@ -78,7 +79,7 @@ something(var ytrter) {
    }
 }
 
-something(1000)
+takeoff(1000)
 
 
 Print("done")

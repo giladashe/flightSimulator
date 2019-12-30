@@ -24,6 +24,7 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     ip.erase(remove(ip.begin(), ip.end(), '"'), ip.end());
     //calculate the expression in the port
     double port = expression->calculate();
+    delete expression;
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (client_socket == -1) {
         //error

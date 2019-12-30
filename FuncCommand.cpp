@@ -14,6 +14,7 @@ int FuncCommand::execute(int index, vector <string> &lexer) {
     Data::updateVariablesFromStr(lexer[index+1]);
     Expression* e = data->getInterpreter()->interpret(lexer[index+1]);
     double value = e->calculate();
+    delete e;
     //put the variable in the program map with the value as was interpreted
     data->setProgMap(this->var, new VarData(value, "", "", 0));
 
