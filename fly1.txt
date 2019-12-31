@@ -25,7 +25,7 @@ var blc -> sim("/controls/gear/brake-right")
 Print("waiting 2 minutes for gui")
 Sleep(70000)
 Print("let's start")
-warp = 32000
+warp = -32000
 Sleep(1000)
 magnetos = 3
 throttle = 0.2
@@ -38,7 +38,8 @@ primer = 3
 starter = 1
 autostart = 1
 Print("engine is warming...")
-Print(rpm)
+Print(1000-(warp+8/magnetos))
+Print("sdfghjkljhgfdsghjkljhgfdsfghkjlkjkhjgfdssfghjkljhjgfdsfghjkjkhjghdfs")
 while rpm <= 750 {
   Print(rpm)
 }
@@ -48,7 +49,7 @@ var h0 = heading
 breaks = 0
 throttle = 1
 while alt < 1000 {
-  rudder = (h0 - heading)/80
+  rudder = (h0 +(-heading))/80
   aileron = -roll / 70
   elevator = pitch / 50
   blc=1
