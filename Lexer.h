@@ -11,6 +11,7 @@
 using namespace std;
 
 class Lexer {
+    vector<string> _functions;
 public:
     vector<string> _arrayOfTokens;
 
@@ -22,6 +23,21 @@ public:
 
     static bool isOperator(char token); //checks if char is an operator
 
+    static void removeSpacesFromBegin(string &str);
+
+    void classifyLine(string &str, string &firstWord, bool &ifOrWhile, bool &hadFunction, bool &isFunction, bool &PrintOrSleep);
+
+    void insertAssignmentLine(vector<string> splitLine);
+
+    void insertRegularLine(string &line, bool &ifOrWhile, bool &hadFunction, bool &isFunction, bool &PrintOrSleep);
+
+    static bool togetherOperator(char first, char second);
+
+    int insertVariableCommandAndFunc(string &line, int i);
+
+    int insertNumber(string &line, int i);
+
+    int insertInsideParentheses(string &line, int i, bool PrintOrSleep);
 };
 
 //

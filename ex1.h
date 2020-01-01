@@ -145,7 +145,7 @@ public:
 
     bool isValidNumber(const string &s);
 
-    list<string> splitByDelimiter(string &s, string delimiter);
+    static list<string> splitByDelimiter(string &s, const string& delimiter);
 };
 
 #endif //EX1_EX1_H

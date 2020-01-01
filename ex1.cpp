@@ -260,7 +260,7 @@ void Interpreter::setVariables(string varsAndVals) {
 
     string delimiterVars = ";";
     string delimiterVarVal = "=";
-    list<string> splitVars = splitByDelimiter(varsAndVals, delimiterVars);
+    list<string> splitVars = Interpreter::splitByDelimiter(varsAndVals, delimiterVars);
     //if there's a ';' at the end it's ok.. so we pop the 0 length string at the end
     if (splitVars.back().length() == 0) {
         splitVars.pop_back();
@@ -430,7 +430,7 @@ bool Interpreter::isValidVariable(const string &s) {
 }
 
 //split a string by delimiter
-list<string> Interpreter::splitByDelimiter(string &s, string delimiter) {
+list<string> Interpreter::splitByDelimiter(string &s, const string& delimiter) {
     //from https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
     size_t pos = 0;
     string token;

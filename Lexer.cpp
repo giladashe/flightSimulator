@@ -14,11 +14,8 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
         exit(1);
     }
     string line;
-    string token;
-    string inParentheses;
-    vector<string> functions;
+    string firstWord;
     //flag if the operators need to be together like >=
-    bool together = false;
     bool ifOrWhileLine = false;
     bool hadThisFunction = false;
     bool isFunction = false;
@@ -27,228 +24,28 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
         //remove tabs from all the line
         line.erase(remove(line.begin(), line.end(), '\t'), line.end());
         //remove spaces from begin
-        for (int t = 0; t < (int) line.length(); t++) {
-            if (line[t] == ' ') {
-                line = line.substr(1, line.length() - 1);
-            } else {
-                break;
-            }
-        }
+        Lexer::removeSpacesFromBegin(line);
         if (line.empty()) {
             continue;
         }
-        string copyOfLine = string(line);
-        string big = string(line);
-        string small = string(line);
+
         //splits by '=' || '>' || '<'
-        vector<string> splitLine = Lexer::splitByDelimiter(copyOfLine, "=");
-        vector<string> splitLineBig = Lexer::splitByDelimiter(big, ">");
-        vector<string> splitLineSmall = Lexer::splitByDelimiter(small, "<");
+        vector<string> splitLine = Lexer::splitByDelimiter(line, "=");
+        vector<string> splitLineBig = Lexer::splitByDelimiter(line, ">");
+        vector<string> splitLineSmall = Lexer::splitByDelimiter(line, "<");
 
-        token.clear();
+
         //checks if line is a Function declaration/if line/while line
-        for (int r = 0; r < (int) line.length(); r++) {
-            if (isOperator(line[r]) || line[r] == '!') {
-                break;
-            }
-            if (line[r] == '(') {
-                token.erase(remove(token.begin(), token.end(), ' '), token.end());
-                if (token != "if" && token != "while" && token != "Print" && token != "Sleep"
-                    && token != "openDataServer" && token != "connectControlClient") {
-                    //if the function is already declared than you proceed as usual
-                    for (const auto &function:functions) {
-                        if (function == token) {
-                            hadThisFunction = true;
-                            break;
-                        }
-                    }
-                    //it's a function declaration
-                    if (!hadThisFunction) {
-                        isFunction = true;
-                        functions.push_back(token);
-                    }
-                }
-                break;
-            }
-            token += line[r];
-            //if it's an if line
-            if (token.length() == 2) {
-                if (token == "if") {
-                    ifOrWhileLine = true;
-                    line = line.substr(3, line.length() - 3);
-                    _arrayOfTokens.push_back(token);
-                    break;
-                }
-            } else if (token.length() == 5) {
-                //if it's a while line
-                if (token == "while") {
-                    line = line.substr(6, line.length() - 6);
-                    ifOrWhileLine = true;
-                    _arrayOfTokens.push_back(token);
-                    break;
-                    //if it's print or sleep you proceed as usual
-                } else if (token == "Print" || token == "Sleep") {
-                    isPrintOrSleep = true;
-                    break;
-                }
-            }
-        }
-
+        this->classifyLine(line, firstWord, ifOrWhileLine, hadThisFunction, isFunction, isPrintOrSleep);
 
         //if it's a line like: variable = value
         if (splitLine.size() > 1 && splitLineBig.size() == 1 && splitLineSmall.size() == 1 && !ifOrWhileLine &&
             !isPrintOrSleep) {
-            for (int i = 0; i < (int) splitLine.size(); i++) {
-                if (i == 0) {
-                    while (splitLine[i][0] == ' ') {
-                        splitLine[i] = splitLine[i].substr(1, splitLine[i].length() - 1);
-                    }
-                    //insert "var" as a token to the array
-                    if (splitLine[i][0] == 'v') {
-                        token = splitLine[i][0];
-                        token += splitLine[i][1];
-                        token += splitLine[i][2];
-                        _arrayOfTokens.push_back(token);
-                        splitLine[i] = splitLine[i].substr(3, splitLine[i].length() - 3);
-                    }
-                }
-
-                //erase spaces - https://stackoverflow.com/questions/83439/remove-spaces-from-stdstring-in-c
-                splitLine[i].erase(remove(splitLine[i].begin(), splitLine[i].end(), ' '), splitLine[i].end());
-                //if it's the variable name
-                if (i == 0) {
-                    _arrayOfTokens.push_back(splitLine[i]);
-                    _arrayOfTokens.emplace_back("=");
-                } else {
-                    //go over the complex expression on the right
-                    for (int j = 0; j < (int) splitLine[i].length(); j++) {
-                        if (isParentheses(splitLine[i][j]) || isOperator(splitLine[i][j])) {
-                            _arrayOfTokens.emplace_back(string(1, splitLine[i][j]));
-                            continue;
-                            //it's a variable or a command
-                        } else if (isalpha(splitLine[i][j]) || splitLine[i][j] == '_') {
-                            token = string(1, splitLine[i][j]);
-                            j++;
-                            while (j < (int) splitLine[i].length() && !isParentheses(splitLine[i][j]) &&
-                                   !isOperator(splitLine[i][j])) {
-                                token += splitLine[i][j];
-                                j++;
-                            }
-                            j--;
-                            //if it's a number you take all the numbers / '.' after it together
-                        } else if (isdigit(splitLine[i][j])) {
-                            token = string(1, splitLine[i][j]);
-                            j++;
-                            while (j < (int) splitLine[i].length() &&
-                                   (splitLine[i][j] == '.' || isdigit(splitLine[i][j]))) {
-                                token += splitLine[i][j];
-                                j++;
-                            }
-                            j--;
-                        }
-                        _arrayOfTokens.push_back(token);
-                    }
-                }
-            }
+            this->insertAssignmentLine(splitLine);
         }
-
             //the rest (print,sleep,if,while,openDataServer,connectControlClient,functions)
         else {
-            for (int i = 0; i < (int) line.length(); i++) {
-                if (line[i] == ' ') {
-                    continue;
-                } else if (line[i] == ')') {
-                    //insert '(' if it's a function or while or if
-                    if (!ifOrWhileLine && !isFunction) {
-                        continue;
-                    }
-                    _arrayOfTokens.emplace_back(string(1, line[i]));
-                    //insert a variable/function name
-                } else if (isalpha(line[i]) || line[i] == '_') {
-                    token = string(1, line[i]);
-                    i++;
-                    while (i < (int) line.length() && !isParentheses(line[i]) && !isOperator(line[i]) &&
-                           line[i] != ' ' && line[i] != '{' && line[i] != '}') {
-                        token += line[i];
-                        i++;
-                    }
-                    i--;
-                    _arrayOfTokens.push_back(token);
-                } else if (line[i] == '(') {
-                    //insert '(' if it's function/if/while line
-                    if (ifOrWhileLine || isFunction) {
-                        _arrayOfTokens.emplace_back(string(1, line[i]));
-                        continue;
-                    }
-                    i++;
-                    inParentheses = string(1, line[i]);
-                    i++;
-                    while (i < (int) line.length()) {
-                        inParentheses += line[i];
-                        i++;
-                    }
-                    inParentheses = inParentheses.substr(0, inParentheses.length() - 1);
-                    //you have now what's inside the parenthesis
-                    string copyOfInParen = string(inParentheses);
-                    //split by ','
-                    if (!isPrintOrSleep) {
-                        vector<string> paren = splitByDelimiter(inParentheses, ",");
-                        //if it's connectcontrol client (has ',')
-                        if (paren.size() > 1) {
-                            copyOfInParen.erase(remove(copyOfInParen.begin(), copyOfInParen.end(), ' '),
-                                                copyOfInParen.end());
-                            paren = splitByDelimiter(copyOfInParen, ",");
-                            for (const auto &obj:paren) {
-                                _arrayOfTokens.push_back(obj);
-                            }
-                            break;
-                        }
-                    }
-                    string copy2OfInParen = string(copyOfInParen);
-                    //split by "
-                    vector<string> quotationMarks = splitByDelimiter(copyOfInParen, "\"");
-                    //except of "print" all expressions in () need to be without spaces
-                    if (quotationMarks.size() == 1) {
-                        copy2OfInParen.erase(remove(copy2OfInParen.begin(), copy2OfInParen.end(), ' '),
-                                             copy2OfInParen.end());
-                    }
-                    _arrayOfTokens.push_back(copy2OfInParen);
-                    i--;
-                    //put opertor in the array
-                } else if (isOperator(line[i]) || line[i] == '!') {
-                    token = string(1, line[i]);
-
-                    //all possible operators that need to be together: -> , <- , <= , >=
-                    if ((line[i] == '-' && line[i + 1] == '>') ||
-                        (line[i] == '<' && (line[i + 1] == '-' || line[i + 1] == '='))
-                        || (line[i] == '>' && line[i + 1] == '=') || (line[i] == '=' && line[i + 1] == '=')
-                        || (line[i] == '!' && line[i + 1] == '=')) {
-                        together = true;
-                    }
-                    if (together) {
-                        token += line[i + 1];
-                        i++;
-                        together = false;
-                    }
-                    _arrayOfTokens.push_back(token);
-                    //put { and } in the array
-                } else if (line[i] == '{' || line[i] == '}') {
-                    _arrayOfTokens.emplace_back(string(1, line[i]));
-                } else { //put a number in array
-                    token = string(1, line[i]);
-                    i++;
-                    while (i < (int) line.length() && (line[i] == '.' || isdigit(line[i]))) {
-                        token += line[i];
-                        i++;
-                    }
-                    i--;
-                    _arrayOfTokens.push_back(token);
-                }
-            }
-            ifOrWhileLine = false;
-            isFunction = false;
-            hadThisFunction = false;
-            isPrintOrSleep = false;
+            Lexer::insertRegularLine(line, ifOrWhileLine, hadThisFunction, isFunction, isPrintOrSleep);
         }
         //put \n to know that it's another line
         _arrayOfTokens.emplace_back("\n");
@@ -260,14 +57,15 @@ vector<string> Lexer::makeTokensArray(ifstream &filePointer) {
 vector<string> Lexer::splitByDelimiter(string &s, const string &delimiter) {
     //based on https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
     size_t pos = 0;
+    string copyOfStr = string(s);
     string token;
     vector<string> splitString;
-    while ((pos = s.find(delimiter)) != string::npos) {
-        token = s.substr(0, pos);
-        s.erase(0, pos + delimiter.length());
+    while ((pos = copyOfStr.find(delimiter)) != string::npos) {
+        token = copyOfStr.substr(0, pos);
+        copyOfStr.erase(0, pos + delimiter.length());
         splitString.push_back(token);
     }
-    splitString.push_back(s);
+    splitString.push_back(copyOfStr);
     return splitString;
 }
 
@@ -277,4 +75,222 @@ bool Lexer::isParentheses(char token) {
 
 bool Lexer::isOperator(char token) {
     return token == '+' || token == '-' || token == '*' || token == '/' || token == '<' || token == '>' || token == '=';
+}
+
+void Lexer::removeSpacesFromBegin(string &str) {
+    int i = 0;
+    while (i < str.length()) {
+        if (str[0] == ' ') {
+            str = str.substr(1, str.length() - 1);
+        } else {
+            break;
+        }
+        i++;
+    }
+}
+
+void Lexer::classifyLine(string &str, string &firstWord, bool &ifOrWhile, bool &hadFunction, bool &isFunction,
+                         bool &PrintOrSleep) {
+    for (int r = 0; r < (int) str.length(); r++) {
+        if (isOperator(str[r]) || str[r] == '!') {
+            break;
+        }
+        if (str[r] == '(') {
+            firstWord.erase(remove(firstWord.begin(), firstWord.end(), ' '), firstWord.end());
+            if (firstWord != "if" && firstWord != "while" && firstWord != "Print" && firstWord != "Sleep"
+                && firstWord != "openDataServer" && firstWord != "connectControlClient") {
+                //if the function is already declared than you proceed as usual
+                for (const auto &function:_functions) {
+                    if (function == firstWord) {
+                        hadFunction = true;
+                        break;
+                    }
+                }
+                //it's a function declaration
+                if (!hadFunction) {
+                    isFunction = true;
+                    this->_functions.push_back(firstWord);
+                }
+            }
+            break;
+        }
+        firstWord += str[r];
+        //if it's an if line
+        if (firstWord.length() == 2) {
+            if (firstWord == "if") {
+                ifOrWhile = true;
+                str = str.substr(3, str.length() - 3);
+                this->_arrayOfTokens.push_back(firstWord);
+                break;
+            }
+        } else if (firstWord.length() == 5) {
+            //if it's a while line
+            if (firstWord == "while") {
+                str = str.substr(6, str.length() - 6);
+                ifOrWhile = true;
+                this->_arrayOfTokens.push_back(firstWord);
+                break;
+                //if it's print or sleep you proceed as usual
+            } else if (firstWord == "Print" || firstWord == "Sleep") {
+                PrintOrSleep = true;
+                break;
+            }
+        }
+    }
+    firstWord.clear();
+}
+
+
+void Lexer::insertAssignmentLine(vector<string> splitLine) {
+    string token;
+    for (int i = 0; i < (int) splitLine.size(); i++) {
+        if (i == 0) {
+            Lexer::removeSpacesFromBegin(splitLine[i]);
+            //insert "var" as a token to the array
+            if (splitLine[i][0] == 'v') {
+                token = splitLine[i][0];
+                token += splitLine[i][1];
+                token += splitLine[i][2];
+                _arrayOfTokens.push_back(token);
+                splitLine[i] = splitLine[i].substr(3, splitLine[i].length() - 3);
+            }
+        }
+
+        //erase spaces - https://stackoverflow.com/questions/83439/remove-spaces-from-stdstring-in-c
+        splitLine[i].erase(remove(splitLine[i].begin(), splitLine[i].end(), ' '), splitLine[i].end());
+        //if it's the variable name
+        if (i == 0) {
+            _arrayOfTokens.push_back(splitLine[i]);
+            _arrayOfTokens.emplace_back("=");
+        } else {
+            //go over the complex expression on the right
+            for (int j = 0; j < (int) splitLine[i].length(); j++) {
+                if (isParentheses(splitLine[i][j]) || isOperator(splitLine[i][j])) {
+                    _arrayOfTokens.emplace_back(string(1, splitLine[i][j]));
+                    continue;
+                    //it's a variable or a command
+                } else if (isalpha(splitLine[i][j]) || splitLine[i][j] == '_') {
+                    j = insertVariableCommandAndFunc(splitLine[i], j);
+                    //if it's a number you take all the numbers / '.' after it together
+                } else if (isdigit(splitLine[i][j])) {
+                    j = insertNumber(splitLine[i], j);
+                }
+            }
+        }
+    }
+}
+
+void Lexer::insertRegularLine(string &line, bool &ifOrWhile, bool &hadFunction, bool &isFunction,
+                              bool &PrintOrSleep) {
+    string token;
+    string inParentheses;
+    for (int i = 0; i < (int) line.length(); i++) {
+        token.clear();
+        if (line[i] == ' ') {
+            continue;
+        } else if (line[i] == ')') {
+            //insert '(' if it's a function or while or if
+            if (!ifOrWhile && !isFunction) {
+                continue;
+            }
+            _arrayOfTokens.emplace_back(string(1, line[i]));
+            //insert a variable/function name
+        } else if (isalpha(line[i]) || line[i] == '_') {
+            i = insertVariableCommandAndFunc(line, i);
+        } else if (line[i] == '(') {
+            //insert '(' if it's function/if/while line
+            if (ifOrWhile || isFunction) {
+                _arrayOfTokens.emplace_back(string(1, line[i]));
+                continue;
+            }
+            i++;
+            i=insertInsideParentheses(line, i, PrintOrSleep);
+            //put operator in the array
+        } else if (isOperator(line[i]) || line[i] == '!') {
+            token += line[i];
+
+            //all possible operators that need to be together: -> , <- , <= , >=, ==, !=
+            if (togetherOperator(line[i], line[i + 1])) {
+                token += line[i + 1];
+                i++;
+            }
+            _arrayOfTokens.push_back(token);
+            //put { and } in the array
+        } else if (line[i] == '{' || line[i] == '}') {
+            _arrayOfTokens.emplace_back(string(1, line[i]));
+        } else { //put a number in array
+            i = insertNumber(line, i);
+        }
+    }
+    ifOrWhile = false;
+    isFunction = false;
+    hadFunction = false;
+    PrintOrSleep = false;
+}
+
+bool Lexer::togetherOperator(char first, char second) {
+    return (first == '-' && second == '>') ||
+           (first == '<' && (second == '-' || second == '='))
+           || (first == '>' && second == '=') || (first == '=' && second == '=')
+           || (first == '!' && second == '=');
+}
+
+int Lexer::insertVariableCommandAndFunc(string &line, int i) {
+    string token = string(1, line[i]);
+    i++;
+    while (i < (int) line.length() && !isParentheses(line[i]) && !isOperator(line[i]) &&
+           line[i] != ' ' && line[i] != '{' && line[i] != '}') {
+        token += line[i];
+        i++;
+    }
+    i--;
+    _arrayOfTokens.push_back(token);
+    return i;
+}
+
+int Lexer::insertNumber(string &line, int i) {
+    string token = string(1, line[i]);
+    i++;
+    while (i < (int) line.length() && (line[i] == '.' || isdigit(line[i]))) {
+        token += line[i];
+        i++;
+    }
+    i--;
+    _arrayOfTokens.push_back(token);
+    return i;
+}
+
+int Lexer::insertInsideParentheses(string &line, int i, bool PrintOrSleep) {
+    string inParentheses = string(1, line[i]);
+    i++;
+    while (i < (int) line.length()) {
+        inParentheses += line[i];
+        i++;
+    }
+    inParentheses = inParentheses.substr(0, inParentheses.length() - 1);
+    //you have now what's inside the parenthesis
+    //split by ','
+    if (!PrintOrSleep) {
+        vector<string> paren = splitByDelimiter(inParentheses, ",");
+        //if it's connectcontrol client (has ',')
+        if (paren.size() > 1) {
+            inParentheses.erase(remove(inParentheses.begin(), inParentheses.end(), ' '),
+                                inParentheses.end());
+            paren = splitByDelimiter(inParentheses, ",");
+            for (const auto &obj:paren) {
+                _arrayOfTokens.push_back(obj);
+            }
+            return i;
+        }
+    }
+    //split by "
+    vector<string> quotationMarks = splitByDelimiter(inParentheses, "\"");
+    //except of "print" all expressions in () need to be without spaces
+    if (quotationMarks.size() == 1) {
+        inParentheses.erase(remove(inParentheses.begin(), inParentheses.end(), ' '),
+                            inParentheses.end());
+    }
+    _arrayOfTokens.push_back(inParentheses);
+    i--;
+    return i;
 }
