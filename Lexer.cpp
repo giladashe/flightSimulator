@@ -79,7 +79,7 @@ bool Lexer::isOperator(char token) {
 
 void Lexer::removeSpacesFromBegin(string &str) {
     int i = 0;
-    while (i < str.length()) {
+    while (i < (int)str.length()) {
         if (str[0] == ' ') {
             str = str.substr(1, str.length() - 1);
         } else {
