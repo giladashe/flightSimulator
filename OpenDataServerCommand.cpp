@@ -72,7 +72,7 @@ void serverThread(int client_socket) {
     //reading from client
     auto data = Data::getInstance();
     vector<string> xmlVariables = data->getXmlVariables();
-    string between_lines = "";
+    string between_lines;
 
     while (!data->isStop()) {
         // initialize buffer to 0
@@ -137,6 +137,11 @@ void serverThread(int client_socket) {
             string justInCase = valuesLines[j];
             // if it's not enough variables(36) put all the values on the side for next iteration
             if (values.size() != 36) {
+
+            	if(values.size()>36){
+					continue;
+            	}
+
                 remain += justInCase;
                 break;
             }
