@@ -104,50 +104,6 @@ void serverThread(int client_socket) {
             between_lines+= buffer[i];
             i++;
         }
-
-        //if the string is not empty it clears it
-        /*if (bufferToString.length() != 0) {
-            bufferToString.clear();
-        }*/
-
-        //bufferToString = buffer;
-
-        //if there were values from previous read it concatenates them to this read
-        /*if (remain.length() > 0) {
-            remain += bufferToString;
-            bufferToString = remain;
-            remain = "";
-        }*/
-
-        // if there is a remain in valueLines - clear
-        /*if (!valuesLines.empty()) {
-            valuesLines.clear();
-        }*/
-
-        //split the read to lines
-        /*valuesLines = Lexer::splitByDelimiter(bufferToString, "\n");
-        if (valuesLines[valuesLines.size() - 1].empty()) {
-            valuesLines.pop_back();
-        }*/
-
-        // loop on the lines that sets values in the maps
-        /*int j = 0;
-        for (; j < (int) valuesLines.size(); j++) {
-            //save the line in different string because split changes it
-            string justInCase = valuesLines[j];
-            // if it's not enough variables(36) put all the values on the side for next iteration
-            if (values.size() != 36) {
-
-            	if(values.size()>36){
-					continue;
-            	}
-
-                remain += justInCase;
-                break;
-            }
-            int k;*/
-
-            // variables is _xmlVariables
         }
     close(client_socket);
 }

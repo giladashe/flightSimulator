@@ -39,7 +39,7 @@ int AssignmentCommand::execute(int index, vector<string> &lexer) {
     if (data->getBindFromProgMap(strToAssign) == 1) {
         string simStr = data->getSimFromProgMap(strToAssign);
         //put command in the queue so the client would send it to the simulator
-        string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + " \r\n";
+        string message = "set " + simStr.substr(1, simStr.size() - 1) + " " + to_string(value) + "\r\n";
         data->queueMutex.lock();
         data->commandsQueue.push(message);
         data->queueMutex.unlock();
