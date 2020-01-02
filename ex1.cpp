@@ -379,9 +379,9 @@ double Condition::calculate() {
     auto right_val = this->right->calculate();
     //round the numbers so we can check
     left_val *= 1000000;
-    left_val = (int) left_val;
+    left_val = (long long) left_val;
     right_val *= 1000000;
-    right_val = (int) right_val;
+    right_val = (long long) right_val;
 
     if (this->_op == "!=") {
         return left_val != right_val || abs(left_val - right_val) != 0;
