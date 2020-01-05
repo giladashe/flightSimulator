@@ -26,7 +26,7 @@ int ConnectClientCommand::execute(int index, vector<string> &lexer) {
     double port = expression->calculate();
     delete expression;
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (client_socket == -1) {
+    if (client_socket == -1) {//
         //error
         cerr << "Could not create a socket" << endl;
         exit(1);

@@ -94,7 +94,7 @@ void serverThread(int client_socket) {
                         //if there is a bind between the maps it updates the value of the varData in progMap
                         if ((data->getBindFromSimMap(xmlVariables[k]) == 1)) {
                             data->setValueProgMap(data->getProgFromSimMap(xmlVariables[k]), (stod(s)));
-                        }
+                        }//
                     }
                 }
                 between_lines = "";

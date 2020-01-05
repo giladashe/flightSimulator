@@ -393,7 +393,7 @@ double Condition::calculate() {
         return left_val <= right_val || abs(left_val - right_val) == 1;
     } else if (this->_op == ">") {
         return left_val > right_val;
-    } else if (this->_op == "<") {
+    } else if (this->_op == "<") {//
         return left_val < right_val;
     }
     return 0;
