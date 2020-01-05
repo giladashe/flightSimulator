@@ -384,13 +384,13 @@ double Condition::calculate() {
     right_val = (long long) right_val;
 
     if (this->_op == "!=") {
-        return left_val != right_val || abs(left_val - right_val) != 0;
+        return left_val != right_val;
     } else if (this->_op == "==") {
-        return left_val == right_val || abs(left_val - right_val) == 0;
+        return left_val == right_val || abs(left_val - right_val) == 1;
     } else if (this->_op == ">=") {
-        return left_val >= right_val || abs(left_val - right_val) == 0;;
+        return left_val >= right_val || abs(left_val - right_val) == 1;
     } else if (this->_op == "<=") {
-        return left_val <= right_val || abs(left_val - right_val) == 0;;
+        return left_val <= right_val || abs(left_val - right_val) == 1;
     } else if (this->_op == ">") {
         return left_val > right_val;
     } else if (this->_op == "<") {

@@ -104,6 +104,6 @@ void serverThread(int client_socket) {
             between_lines+= buffer[i];
             i++;
         }
-        }
+    }
     close(client_socket);
 }
